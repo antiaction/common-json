@@ -25,7 +25,7 @@ package com.antiaction.common.json.representation;
 public class PackageAccess {
 
 	public static void setObjectValues(JSONCollection json_struct, JSONString key, JSONValue value) {
-		((JSONObject)json_struct).values.put( key, value );
+		((JSONObject)json_struct).nameValuePairs.put( key, value );
 	}
 
 }

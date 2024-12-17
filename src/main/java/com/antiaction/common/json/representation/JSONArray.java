@@ -19,6 +19,7 @@ package com.antiaction.common.json.representation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.antiaction.common.json.JSONConstants;
@@ -95,8 +96,18 @@ public class JSONArray extends JSONCollection {
 	}
 
 	@Override
+	public int size() {
+		return values.size();
+	}
+
+	@Override
 	public JSONValue get(int index) {
 		return values.get( index );
+	}
+
+	@Override
+	public Iterator<JSONValue> iterator() {
+		return values.iterator();
 	}
 
 	@Override

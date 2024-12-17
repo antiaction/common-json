@@ -835,7 +835,7 @@ public class TestJSONStructureMarshaller_ArrayFields {
 			for ( int i=0; i<fieldNamesPrimitives.length; ++i ) {
 				json_struct = marshaller.toJSONStructure( obj );
 				json_object = json_struct.getObject();
-				json_object.values.put( JSONString.String( fieldNamesPrimitives[ i ] ), json_array );
+				json_object.nameValuePairs.put( JSONString.String( fieldNamesPrimitives[ i ] ), json_array );
 				try {
 					unmarshaller.toObject( json_struct, TestJSONMapObjectArrays.class );
 					Assert.fail( "Exception expected!" );
@@ -854,7 +854,7 @@ public class TestJSONStructureMarshaller_ArrayFields {
 				}
 				catch (JSONException e) {
 				}
-				json_object.values.put( JSONString.String( fieldNamesPrimitives[ i ] ), JSONNull.Null );
+				json_object.nameValuePairs.put( JSONString.String( fieldNamesPrimitives[ i ] ), JSONNull.Null );
 				try {
 					unmarshaller.toObject( json_struct, TestJSONMapObjectArraysNotNullableNullValues.class );
 					Assert.fail( "Exception expected!" );
@@ -873,7 +873,7 @@ public class TestJSONStructureMarshaller_ArrayFields {
 			for ( int i=0; i<fieldNamesObjects.length; ++i ) {
 				json_struct = marshaller.toJSONStructure( obj );
 				json_object = json_struct.getObject();
-				json_object.values.put( JSONString.String( fieldNamesObjects[ i ] ), json_array );
+				json_object.nameValuePairs.put( JSONString.String( fieldNamesObjects[ i ] ), json_array );
 				try {
 					unmarshaller.toObject( json_struct, TestJSONMapObjectArrays.class );
 					Assert.fail( "Exception expected!" );
@@ -887,7 +887,7 @@ public class TestJSONStructureMarshaller_ArrayFields {
 				catch (JSONException e) {
 				}
 				unmarshaller.toObject( json_struct, TestJSONMapObjectArraysNullValues.class );
-				json_object.values.put( JSONString.String( fieldNamesObjects[ i ] ), JSONNull.Null );
+				json_object.nameValuePairs.put( JSONString.String( fieldNamesObjects[ i ] ), JSONNull.Null );
 				try {
 					unmarshaller.toObject( json_struct, TestJSONMapObjectArraysNotNullableNullValues.class );
 					Assert.fail( "Exception expected!" );

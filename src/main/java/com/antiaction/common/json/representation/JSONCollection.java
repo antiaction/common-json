@@ -17,6 +17,10 @@
 
 package com.antiaction.common.json.representation;
 
+import java.util.Map.Entry;
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * JSON collection abstraction. Object and Array are the only current top level
  * JSON collections.
@@ -129,6 +133,30 @@ public abstract class JSONCollection extends JSONValue {
 	 * @return JSON value in the array associated with the given key
 	 */
 	public JSONValue get(JSONString key) {
+		throw new UnsupportedOperationException();
+	}
+
+	public int size() {
+		throw new UnsupportedOperationException();
+	}
+
+	public Iterator<JSONValue> iterator() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Returns a <code>Set</code> of JSONString key names.
+	 * @return a <code>Set</code> of JSONString key names
+	 */
+	public Set<JSONString> keySet() {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Returns the entry <code>Set</code> containing all the name value pairs for this object.
+	 * @return the entry <code>Set</code> containing all the name value pairs for this object
+	 */
+	public Set<Entry<JSONString, JSONValue>> entrySet() {
 		throw new UnsupportedOperationException();
 	}
 

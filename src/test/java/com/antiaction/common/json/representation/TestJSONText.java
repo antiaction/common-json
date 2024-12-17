@@ -513,7 +513,7 @@ public class TestJSONText {
 			json_array2 = (JSONArray)json_array.get( 9 );
 			Assert.assertTrue( json_array2.values.isEmpty() );
 			json_object2 = (JSONObject)json_array.get( 10 );
-			Assert.assertTrue( json_object2.values.isEmpty() );
+			Assert.assertTrue( json_object2.nameValuePairs.isEmpty() );
 
 			/*
 			 * [[...],...]
@@ -764,7 +764,7 @@ public class TestJSONText {
 			Assert.assertEquals( JSONBoolean.False, json_struct.get( new JSONString( "False" ) ) );
 			Assert.assertEquals( JSONBoolean.True, json_struct.get( new JSONString( "True" ) ) );
 			json_object2 = (JSONObject)json_struct.get( new JSONString( "Object" ) );
-			Assert.assertTrue( json_object2.values.isEmpty() );
+			Assert.assertTrue( json_object2.nameValuePairs.isEmpty() );
 			json_array2 = (JSONArray)json_struct.get( new JSONString( "Array" ) );
 			Assert.assertTrue( json_array2.values.isEmpty() );
 		}

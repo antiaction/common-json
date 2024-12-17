@@ -676,7 +676,7 @@ public class TestJSONStructureMarshaller_Nullable {
 				JSONCollection json_struct;
 				try {
 					json_struct = json_objectmappings.getStructureMarshaller().toJSONStructure( moldObject );
-					((JSONObject)json_struct).values.remove( JSONString.String( fields[ i ] ) );
+					((JSONObject)json_struct).nameValuePairs.remove( JSONString.String( fields[ i ] ) );
 					out.reset();
 					json_textMarshaller.toJSONText( json_struct, json_encoder, true, out );
 					// debug

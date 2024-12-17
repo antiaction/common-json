@@ -211,29 +211,29 @@ public class TestJSONObject {
 		catch (UnsupportedOperationException e) {
 		}
 
-		Assert.assertEquals( 0, json_object.values.size() );
+		Assert.assertEquals( 0, json_object.nameValuePairs.size() );
 
 		Assert.assertNull( json_object.get( JSONString.String( "one" ) ) );
 		JSONObject json_object_added = json_object.addObject( "one" );
-		Assert.assertEquals( 1, json_object.values.size() );
+		Assert.assertEquals( 1, json_object.nameValuePairs.size() );
 		Assert.assertTrue( json_object_added.equals( json_object.get( JSONString.String( "one" ) ) ) );
 
 		Assert.assertNull( json_object.get( "two" ) );
 		JSONObject json_object_added2 = json_object.addObject( JSONString.String( "two" ) );
-		Assert.assertEquals( 2, json_object.values.size() );
+		Assert.assertEquals( 2, json_object.nameValuePairs.size() );
 		Assert.assertTrue( json_object_added.equals( json_object.get( JSONString.String( "one" ) ) ) );
 		Assert.assertTrue( json_object_added2.equals( json_object.get( "two" ) ) );
 
 		Assert.assertNull( json_object.get( JSONString.String( "three" ) ) );
 		JSONArray json_array_added = json_object.addArray( "three" );
-		Assert.assertEquals( 3, json_object.values.size() );
+		Assert.assertEquals( 3, json_object.nameValuePairs.size() );
 		Assert.assertTrue( json_object_added.equals( json_object.get( JSONString.String( "one" ) ) ) );
 		Assert.assertTrue( json_object_added2.equals( json_object.get( "two" ) ) );
 		Assert.assertTrue( json_array_added.equals( json_object.get( JSONString.String( "three" ) ) ) );
 
 		Assert.assertNull( json_object.get( "four" ) );
 		JSONArray json_array_added2 = json_object.addArray( JSONString.String( "four" ) );
-		Assert.assertEquals( 4, json_object.values.size() );
+		Assert.assertEquals( 4, json_object.nameValuePairs.size() );
 		Assert.assertTrue( json_object_added.equals( json_object.get( JSONString.String( "one" ) ) ) );
 		Assert.assertTrue( json_object_added2.equals( json_object.get( "two" ) ) );
 		Assert.assertTrue( json_array_added.equals( json_object.get( JSONString.String( "three" ) ) ) );

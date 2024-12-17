@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONEncoder;
@@ -35,7 +36,7 @@ import com.antiaction.common.json.JSONEncoder;
 public class JSONObject extends JSONCollection {
 
 	/** <code>Map</code> of JSON Object key/value pairs. */
-	protected Map<JSONString, JSONValue> values = new HashMap<JSONString, JSONValue>();
+	protected Map<JSONString, JSONValue> nameValuePairs = new HashMap<JSONString, JSONValue>();
 
 	/**
 	 * Construct a JSON OBject.
@@ -47,7 +48,7 @@ public class JSONObject extends JSONCollection {
 	@Override
 	public void encode(JSONEncoder encoder) throws IOException {
 		encoder.write( '{' );
-		Iterator<Entry<JSONString, JSONValue>> iter = values.entrySet().iterator();
+		Iterator<Entry<JSONString, JSONValue>> iter = nameValuePairs.entrySet().iterator();
 		Entry<JSONString, JSONValue> entry;
 		int i = 0;
 		while ( iter.hasNext() ) {
@@ -66,7 +67,7 @@ public class JSONObject extends JSONCollection {
 	@Override
 	public void encode(JSONEncoder encoder, String indentation, String indent) throws IOException {
 		encoder.write( "{\n" );
-		Iterator<Entry<JSONString, JSONValue>> iter = values.entrySet().iterator();
+		Iterator<Entry<JSONString, JSONValue>> iter = nameValuePairs.entrySet().iterator();
 		Entry<JSONString, JSONValue> entry;
 		String innerIndentation = indentation + indent;
 		int i = 0;
@@ -90,14 +91,14 @@ public class JSONObject extends JSONCollection {
 	public JSONObject addObject(String name) {
 		JSONObject json_object = new JSONObject();
 		JSONString json_string = JSONString.String( name );
-		values.put( json_string, json_object );
+		nameValuePairs.put( json_string, json_object );
 		return json_object;
 	}
 
 	@Override
 	public JSONObject addObject(JSONString name) {
 		JSONObject json_object = new JSONObject();
-		values.put( name, json_object );
+		nameValuePairs.put( name, json_object );
 		return json_object;
 	}
 
@@ -105,27 +106,27 @@ public class JSONObject extends JSONCollection {
 	public JSONArray addArray(String name) {
 		JSONArray json_array = new JSONArray();
 		JSONString json_string = JSONString.String( name );
-		values.put( json_string, json_array );
+		nameValuePairs.put( json_string, json_array );
 		return json_array;
 	}
 
 	@Override
 	public JSONArray addArray(JSONString name) {
 		JSONArray json_array = new JSONArray();
-		values.put( name, json_array );
+		nameValuePairs.put( name, json_array );
 		return json_array;
 	}
 
 	@Override
 	public JSONString put(String name, JSONValue value) {
 		JSONString json_string = JSONString.String( name );
-		values.put( json_string, value );
+		nameValuePairs.put( json_string, value );
 		return json_string;
 	}
 
 	@Override
 	public void put(JSONString name, JSONValue value) {
-		values.put( name, value );
+		nameValuePairs.put( name, value );
 	}
 
 	@Override
@@ -135,19 +136,29 @@ public class JSONObject extends JSONCollection {
 
 	@Override
 	public JSONValue get(String key) {
-		return values.get( JSONString.String( key ) );
+		return nameValuePairs.get( JSONString.String( key ) );
 	}
 
 	@Override
 	public JSONValue get(JSONString key) {
-		return values.get( key );
+		return nameValuePairs.get( key );
+	}
+
+	@Override
+	public Set<JSONString> keySet() {
+		return nameValuePairs.keySet();
+	}
+
+	@Override
+	public Set<Entry<JSONString, JSONValue>> entrySet() {
+		return nameValuePairs.entrySet();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append( '{' );
-		Iterator<Entry<JSONString, JSONValue>> iter = values.entrySet().iterator();
+		Iterator<Entry<JSONString, JSONValue>> iter = nameValuePairs.entrySet().iterator();
 		Entry<JSONString, JSONValue> entry;
 		int x = 0;
 		while (iter.hasNext()) {
