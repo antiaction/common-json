@@ -17,7 +17,6 @@
 
 package com.antiaction.common.json;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,14 +45,17 @@ public class JSONObjectMapping {
 	 * Object.
 	 */
 
+	/** Class and parent classes used for this object mapping. */
+	public List<JSONClassData> classDataList;
+
 	/** Field names to ignore when mapping objects. */
 	public Set<String> ignore;
 
 	/** Field names which can be null. */
-	public Set<String> nullableSet;
+	public Set<String> nullable;
 
 	/** Field names which can have null values. */
-	public Set<String> nullValuesSet;
+	public Set<String> nullValues;
 
 	/** Map of mapped fields. */
 	public Map<String, JSONObjectFieldMapping> fieldMappingsMap;
@@ -92,9 +94,9 @@ public class JSONObjectMapping {
 	public static JSONObjectMapping getObjectMapping() {
 		JSONObjectMapping om = new JSONObjectMapping();
 		om.type = OMT_OBJECT;
-		om.ignore = new HashSet<String>();
-		om.nullableSet = new TreeSet<String>();
-		om.nullValuesSet = new TreeSet<String>();
+		om.ignore = new TreeSet<String>();
+		om.nullable = new TreeSet<String>();
+		om.nullValues = new TreeSet<String>();
 		om.fieldMappingsMap = new TreeMap<String, JSONObjectFieldMapping>();
 		om.fieldMappingsList = new LinkedList<JSONObjectFieldMapping>();
 		return om;
@@ -141,10 +143,10 @@ public class JSONObjectMapping {
 		toString( ignore, sb );
 		sb.append( "\n" );
 		sb.append( "  nullableSet: " );
-		toString( nullableSet, sb );
+		toString( nullable, sb );
 		sb.append( "\n" );
 		sb.append( "  nullValuesSet: " );
-		toString( nullValuesSet, sb );
+		toString( nullValues, sb );
 		sb.append( "\n" );
 		sb.append( "  fieldMapping: " );
 		if ( fieldMapping != null ) {
@@ -197,6 +199,10 @@ public class JSONObjectMapping {
 		else {
 			sb.append( "null" );
 		}
+	}
+
+	public void classDataStringAppend(StringBuilder sb) {
+		JSONClassData.toString(classDataList, sb);
 	}
 
 }

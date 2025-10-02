@@ -32,8 +32,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * FIXME Test nullable for fields not present in stream but present in mapping.
  * De-serialize a JSON data stream into Java Object(s).
+ * FIXME Test nullable for fields not present in stream but present in mapping.
+ * FIXME Throws exception when an object or array is not mapped.
  *
  * @author Nicholas
  * Created on 17/10/2013
@@ -190,7 +191,7 @@ public class JSONStreamUnmarshaller {
 		Collection curArr = null;
 		Map<String, JSONObjectFieldMapping> fieldMappingsMap = null;
 		JSONObjectFieldMapping fieldMapping = null;
-		int fieldMappingStep = 0;
+		int fieldMappingStep = 0;								// TODO Document.
 		String mapKey = null;
 
 		boolean bArrayToRootObj = false;
@@ -205,8 +206,14 @@ public class JSONStreamUnmarshaller {
 				while ( pos < limit && !bExit ) {
 					c = charArray[ pos ];
 					// debug
-					//System.out.println( stateStr.get( state ) + " (" + state + ")" );
+					//System.out.println( "(" + y + ":" + x + ") " + stateStr.get( state ) + " (" + state + ")" );
+					/*
+					 * Parser state machine.
+					 */
 					switch ( state ) {
+					/*
+					 * Start state: Whitespace or the start of an object or array.
+					 */
 					case S_START:
 						++x;
 						switch ( c ) {
@@ -235,6 +242,9 @@ public class JSONStreamUnmarshaller {
 						}
 						++pos;
 						break;
+						/*
+						 * Parses all objects except a root one.
+						 */
 					case S_OBJECT_BEGIN:
 						++pos;
 						stackEntry = new StackEntry();
@@ -331,12 +341,12 @@ public class JSONStreamUnmarshaller {
 							state = S_ARRAY;
 							break;
 						case JSONObjectMappingConstants.T_LIST:
+						case JSONObjectMappingConstants.T_SET:
 							//curArr = (Collection)fieldMapping.clazz.newInstance();
 							curArr = (Collection)fieldMapping.instanceClazz.newInstance();
 							state = S_LIST;
 							break;
 						case JSONObjectMappingConstants.T_OBJECT:
-						case JSONObjectMappingConstants.T_SET:
 						case JSONObjectMappingConstants.T_MAP:
 						default:
 							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
@@ -401,6 +411,9 @@ public class JSONStreamUnmarshaller {
 						// TODO Handle missing mapping for key/field in stream.
 						if ( fieldMappingStep == 0 ) {
 							fieldMapping = fieldMappingsMap.get( stringVal );
+							if (fieldMapping == null) {
+								throw new JSONException("No java field for \"" + stringVal + "\" at (" + y + ":" + x + ")!");
+							}
 						}
 						else {
 							mapKey = stringVal;
@@ -428,6 +441,8 @@ public class JSONStreamUnmarshaller {
 						++pos;
 						break;
 					case S_OBJECT_VALUE:
+						// debug
+						//System.out.println("json_value_type=" + json_value_type);
 						switch ( json_value_type ) {
 						case VT_NULL:
 							if ( !fieldMapping.nullable ) {
@@ -489,8 +504,29 @@ public class JSONStreamUnmarshaller {
 								}
 								fieldMapping.field.set( curObj, byteArray );
 								break;
+							case JSONObjectMappingConstants.T_MAP:
+								// debug
+								//System.out.println( "Map - " + fieldMappingStep + " - " + mapKey );
+								if ( fieldMappingStep == 1 ) {
+									((Map)curObj).put( mapKey, stringVal );
+								}
+								else {
+									// Is this code ever reached?
+									/*
+									// From Object.
+									if ( object != null ) {
+										// TODO
+										//object = toObject( object, fieldMapping.clazz, converters );
+									}
+									*/
+									if ( stringVal == null && !fieldMapping.nullable ) {
+										throw new JSONException( "Field '" + fieldMapping.fieldName + "' is not nullable." );
+									}
+									fieldMapping.field.set( curObj, stringVal );
+								}
+								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) + " at (" + y + ":" + x + ")!" );
 							}
 							break;
 						case VT_OBJECT:
@@ -512,6 +548,7 @@ public class JSONStreamUnmarshaller {
 									((Map)curObj).put( mapKey, object );
 								}
 								else {
+									// Is this code ever reached?
 									if ( object != null ) {
 										// TODO
 										//object = toObject( object, fieldMapping.clazz, converters );

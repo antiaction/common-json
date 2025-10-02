@@ -99,85 +99,85 @@ public class ClassTypeModifiers {
 		/*
 		 * Type.
 		 */
-		if ( clazz.isAnnotation() ) {
+		if (clazz.isAnnotation()) {
 			mask |= CT_ANNOTATION;
 		}
-		if ( clazz.isAnonymousClass() ) {
+		if (clazz.isAnonymousClass()) {
 			mask |= CT_ANONYMOUSCLASS;
 		}
-		if ( clazz.isArray() ) {
+		if (clazz.isArray()) {
 			mask |= CT_ARRAY;
 		}
-		if ( clazz.isEnum() ) {
+		if (clazz.isEnum()) {
 			mask |= CT_ENUM;
 		}
-		if ( clazz.isInterface() ) {
+		if (clazz.isInterface()) {
 			mask |= CT_INTERFACE;
 		}
-		if ( clazz.isLocalClass() ) {
+		if (clazz.isLocalClass()) {
 			mask |= CT_LOCALCLASS;
 		}
-		if ( clazz.isMemberClass() ) {
+		if (clazz.isMemberClass()) {
 			mask |= CT_MEMBERCLASS;
 		}
-		if ( clazz.isPrimitive() ) {
+		if (clazz.isPrimitive()) {
 			mask |= CT_PRIMITIVE;
 		}
-		if ( clazz.isSynthetic() ) {
+		if (clazz.isSynthetic()) {
 			mask |= CT_SYNTHETIC;
 		}
 		/*
 		 * Class.
 		 */
-		if ( (mask & (CT_ANNOTATION | CT_ANONYMOUSCLASS | CT_ARRAY | CT_ENUM | CT_INTERFACE | CT_LOCALCLASS | CT_MEMBERCLASS | CT_PRIMITIVE)) == 0 ) {
+		if ((mask & (CT_ANNOTATION | CT_ANONYMOUSCLASS | CT_ARRAY | CT_ENUM | CT_INTERFACE | CT_LOCALCLASS | CT_MEMBERCLASS | CT_PRIMITIVE)) == 0) {
 			mask |= CT_CLASS;
 		}
 		/*
 		 * Modifiers.
 		 */
-		return mask | getModifiersMask( clazz.getModifiers() );
+		return mask | getModifiersMask(clazz.getModifiers());
 	}
 
 	public static int getFieldModifiersMask(Field field) {
-		return getModifiersMask( field.getModifiers() );
+		return getModifiersMask(field.getModifiers());
 	}
 
 	public static int getModifiersMask(int mod) {
 		int mask = 0;
-		if ( Modifier.isAbstract( mod ) ) {
+		if (Modifier.isAbstract(mod)) {
 			mask |= CM_ABSTRACT;
 		}
-		if ( Modifier.isFinal( mod ) ) {
+		if (Modifier.isFinal(mod)) {
 			mask |= CM_FINAL;
 		}
-		if ( Modifier.isInterface( mod ) ) {
+		if (Modifier.isInterface(mod)) {
 			mask |= CT_INTERFACE;
 		}
-		if ( Modifier.isNative( mod ) ) {
+		if (Modifier.isNative(mod)) {
 			mask |= CM_NATIVE;
 		}
-		if ( Modifier.isPrivate( mod ) ) {
+		if (Modifier.isPrivate(mod)) {
 			mask |= CM_PRIVATE;
 		}
-		if ( Modifier.isProtected( mod ) ) {
+		if (Modifier.isProtected(mod)) {
 			mask |= CM_PROTECTED;
 		}
-		if ( Modifier.isPublic( mod) ) {
+		if (Modifier.isPublic(mod)) {
 			mask |= CM_PUBLIC;
 		}
-		if ( Modifier.isStatic( mod ) ) {
+		if (Modifier.isStatic(mod)) {
 			mask |= CM_STATIC;
 		}
-		if ( Modifier.isStrict( mod ) ) {
+		if (Modifier.isStrict(mod)) {
 			mask |= CM_STRICT;
 		}
-		if ( Modifier.isSynchronized( mod ) ) {
+		if (Modifier.isSynchronized(mod)) {
 			mask |= CM_SYNCHRONIZED;
 		}
-		if ( Modifier.isTransient( mod ) ) {
+		if (Modifier.isTransient(mod)) {
 			mask |= CM_TRANSIENT;
 		}
-		if ( Modifier.isVolatile( mod ) ) {
+		if (Modifier.isVolatile(mod)) {
 			mask |= CM_VOLATILE;
 		}
 		return mask;
@@ -233,12 +233,12 @@ public class ClassTypeModifiers {
 
 	public static String toString(int mask) {
 		StringBuilder sb = new StringBuilder();
-		for ( int i=0; i<masks.length; ++i ) {
-			if ( (mask & masks[ i ]) != 0 ) {
-				if ( sb.length() > 0 ) {
-					sb.append( ", " );
+		for (int i=0; i<masks.length; ++i) {
+			if ((mask & masks[i]) != 0) {
+				if (sb.length() > 0) {
+					sb.append(", ");
 				}
-				sb.append( names[ i ] );
+				sb.append(names[i]);
 			}
 		}
 		return sb.toString();
@@ -250,7 +250,7 @@ public class ClassTypeModifiers {
 	public static final int COLTYPE_SET = 3;
 
 	public static String colTypeToString(int colType) {
-		switch ( colType ) {
+		switch (colType) {
 		case COLTYPE_LIST:
 			return "List";
 		case COLTYPE_SET:
@@ -267,17 +267,23 @@ public class ClassTypeModifiers {
 	public static int getCollectionInterfaceType(Class<?> clazz) {
 		String clazzName = clazz.getName();
 		int colType = COLTYPE_OTHER;
-		if ( clazzName.equals( java.util.List.class.getName() ) ) {
+		if (LIST_CLASS_NAME.equals(clazzName)) {
 			colType = COLTYPE_LIST;
 		}
-		else if ( clazzName.equals( java.util.Map.class.getName() ) ) {
+		else if (MAP_CLASS_NAME.equals(clazzName)) {
 			colType = COLTYPE_MAP;
 		}
-		else if ( clazzName.equals(java.util.Set.class.getName() ) ) {
+		else if (SET_CLASS_NAME.equals(clazzName)) {
 			colType = COLTYPE_SET;
 		}
 		return colType;
 	}
+
+	public static final String LIST_CLASS_NAME = java.util.List.class.getName();
+
+	public static final String MAP_CLASS_NAME = java.util.Map.class.getName();
+
+	public static final String SET_CLASS_NAME = java.util.Set.class.getName();
 
 	protected static Map<String, Integer> cachedColType = new HashMap<String, Integer>();
 
@@ -287,40 +293,40 @@ public class ClassTypeModifiers {
 		String interfaceClazzName;
 		Integer interfaceColType;
 		String clazzName = clazz.getName();
-		Integer clazzColType = cachedColType.get( clazzName );
-		if ( clazzColType == null ) {
+		Integer clazzColType = cachedColType.get(clazzName);
+		if (clazzColType == null) {
 			clazzColType = COLTYPE_OTHER;
 			interfaces = clazz.getInterfaces();
-			for ( int i=0; i<interfaces.length; ++i ) {
-				interfaceClazz = interfaces[ i ];
+			for (int i=0; i<interfaces.length; ++i) {
+				interfaceClazz = interfaces[i];
 				interfaceClazzName = interfaceClazz.getName();
-				interfaceColType = cachedColType.get( interfaceClazzName );
+				interfaceColType = cachedColType.get(interfaceClazzName);
 				if ( interfaceColType == null ) {
-					if ( interfaceClazz.getName().equals( java.util.List.class.getName() ) ) {
+					if (LIST_CLASS_NAME.equals(interfaceClazzName)) {
 						interfaceColType = COLTYPE_LIST;
 					}
-					else if ( interfaceClazz.getName().equals( java.util.Map.class.getName() ) ) {
+					else if (MAP_CLASS_NAME.equals(interfaceClazzName)) {
 						interfaceColType = COLTYPE_MAP;
 					}
-					else if ( interfaceClazz.getName().equals(java.util.Set.class.getName() ) ) {
+					else if (SET_CLASS_NAME.equals(interfaceClazzName)) {
 						interfaceColType = COLTYPE_SET;
 					}
-					if ( interfaceColType != null ) {
-						cachedColType.put( interfaceClazzName, interfaceColType );
+					if (interfaceColType != null) {
+						cachedColType.put(interfaceClazzName, interfaceColType);
 						// debug
 						//System.out.println( interfaceColType + " = " + interfaceClazzName );
 					}
 					else {
-						interfaceColType = getCollectionType( interfaceClazz );
+						interfaceColType = getCollectionType(interfaceClazz);
 					}
 				}
 				/*
 				else {
 					// debug
-					System.out.println( "(" + interfaceColType + " = " + interfaceClazzName + ")" );
+					System.out.println("(" + interfaceColType + " = " + interfaceClazzName + ")");
 				}
 				*/
-				switch (interfaceColType ) {
+				switch (interfaceColType) {
 				case COLTYPE_LIST:
 				case COLTYPE_MAP:
 				case COLTYPE_SET:
@@ -330,14 +336,14 @@ public class ClassTypeModifiers {
 					break;
 				}
 			}
-			cachedColType.put( clazzName, clazzColType );
+			cachedColType.put(clazzName, clazzColType);
 			// debug
-			//System.out.println( clazzColType + " = " + clazzName );
+			//System.out.println(clazzColType + " = " + clazzName);
 		}
 		/*
 		else {
 			// debug
-			System.out.println( "(" + clazzColType + " = " + clazzName + ")" );
+			System.out.println("(" + clazzColType + " = " + clazzName + ")");
 		}
 		*/
 		return clazzColType;

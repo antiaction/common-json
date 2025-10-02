@@ -19,8 +19,8 @@ public class TestJSONObjectMapping {
 		Assert.assertNotNull( objectMapping );
 		Assert.assertEquals( JSONObjectMapping.OMT_OBJECT, objectMapping.type );
 		Assert.assertNotNull( objectMapping.ignore );
-		Assert.assertNotNull( objectMapping.nullableSet );
-		Assert.assertNotNull( objectMapping.nullValuesSet );
+		Assert.assertNotNull( objectMapping.nullable );
+		Assert.assertNotNull( objectMapping.nullValues );
 		Assert.assertNotNull( objectMapping.fieldMappingsMap );
 		Assert.assertNotNull( objectMapping.fieldMappingsList );
 		Assert.assertNull( objectMapping.fieldMappingsArr );
@@ -35,8 +35,8 @@ public class TestJSONObjectMapping {
 		Assert.assertNotNull( objectMapping );
 		Assert.assertEquals( JSONObjectMapping.OMT_ARRAY, objectMapping.type );
 		Assert.assertNull( objectMapping.ignore );
-		Assert.assertNull( objectMapping.nullableSet );
-		Assert.assertNull( objectMapping.nullValuesSet );
+		Assert.assertNull( objectMapping.nullable );
+		Assert.assertNull( objectMapping.nullValues );
 		Assert.assertNull( objectMapping.fieldMappingsMap );
 		Assert.assertNull( objectMapping.fieldMappingsList );
 		Assert.assertNull( objectMapping.fieldMappingsArr );

@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -69,9 +70,9 @@ public class JSONObjectMappingConstants {
 	public static final int T_MAP = 202;
 	public static final int T_SET = 203;
 
-	protected static Map<String, Integer> primitiveTypeMappings = new TreeMap<String, Integer>();
+	public static Map<String, Integer> primitiveTypeMappings = new TreeMap<String, Integer>();
 
-	protected static Map<String, Integer> arrayPrimitiveTypeMappings = new TreeMap<String, Integer>();
+	public static Map<String, Integer> arrayPrimitiveTypeMappings = new TreeMap<String, Integer>();
 
 	static {
 		primitiveTypeMappings.put( boolean.class.getName(), T_PRIMITIVE_BOOLEAN );
@@ -118,6 +119,26 @@ public class JSONObjectMappingConstants {
 		arrayPrimitiveTypeMappings.put( String[].class.getName(), T_STRING );
 	}
 
+	public static String primitivTypesToString() {
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> iter = primitiveTypeMappings.keySet().iterator();
+		while (iter.hasNext()) {
+			sb.append(iter.next());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
+	public static String arrayPrimitiveTypesToString() {
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> iter = arrayPrimitiveTypeMappings.keySet().iterator();
+		while (iter.hasNext()) {
+			sb.append(iter.next());
+			sb.append("\n");
+		}
+		return sb.toString();
+	}
+
 	/*
 	 * Class.
 	 */
@@ -140,6 +161,8 @@ public class JSONObjectMappingConstants {
 	public static final int VALID_CLASS = ClassTypeModifiers.CT_CLASS;
 
 	public static final int VALID_MEMBER_CLASS = ClassTypeModifiers.CT_MEMBERCLASS | ClassTypeModifiers.CM_STATIC;
+
+	public static final int ABSTRACT_CLASS = ClassTypeModifiers.CT_CLASS | ClassTypeModifiers.CM_ABSTRACT;
 
 	public static final int VALID_ARRAY_CLASS = ClassTypeModifiers.CT_ARRAY | ClassTypeModifiers.CM_ABSTRACT | ClassTypeModifiers.CM_FINAL;
 
