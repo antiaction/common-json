@@ -51,6 +51,18 @@ And partial support for
 
 ## History ##
 
+### version 0.7.1 ###
+Released: 2025-10-10
+
+Work on supporting generics in classes and/or extended classes. Improved support for maps/sets.
+
+* Changed pom.xml to deploy snapshots/releases to Central Portal instead of OSSRH.
+* Updated versions for junit dependency and compiler plugin.
+* Work on support for maps/sets in JSONStreamMarshaller/JSONStreamUnmarshaller.
+* Tweaks to ClassTypeModifiers.
+* Added various classes to add partial support for mapping generic classes and/or classes with multiple extends.
+* Trivial rename in representation classes.
+
 ### version 0.7.0 ###
 Released: 2015-06-14
 
