@@ -474,9 +474,9 @@ public class JSONObjectMappingsOld {
 										System.out.println(typeArgument.getTypeName());
 									}
 									else if (typeArgument instanceof TypeVariable) {
-										System.out.println(((TypeVariable)typeArgument).getName());
-										System.out.println(((TypeVariable)typeArgument).getTypeName());
-										System.out.println(((TypeVariable)typeArgument).getGenericDeclaration());
+										System.out.println(((TypeVariable<?>)typeArgument).getName());
+										System.out.println(((TypeVariable<?>)typeArgument).getTypeName());
+										System.out.println(((TypeVariable<?>)typeArgument).getGenericDeclaration());
 									}
 									else {
 										throw new JSONException(typeArgument.getClass().getCanonicalName());

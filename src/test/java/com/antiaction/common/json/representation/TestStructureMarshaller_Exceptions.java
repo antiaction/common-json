@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.antiaction.common.json.JSONConverterAbstract;
 import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectFieldMapping;
 import com.antiaction.common.json.JSONObjectMapping;

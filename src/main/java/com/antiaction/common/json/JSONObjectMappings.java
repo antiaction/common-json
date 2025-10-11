@@ -27,6 +27,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.antiaction.common.classmapper.ClassData;
+import com.antiaction.common.classmapper.ClassMapperException;
+import com.antiaction.common.classmapper.GenericClassMapper;
 import com.antiaction.common.json.annotation.JSONConverter;
 import com.antiaction.common.json.annotation.JSONName;
 import com.antiaction.common.json.annotation.JSONNullValues;
@@ -44,6 +47,8 @@ import com.antiaction.common.json.representation.JSONTextUnmarshaller;
 public class JSONObjectMappings {
 
 	protected final Class<?>[] zeroArgsParameterTypes = new Class[ 0 ];
+
+	public GenericClassMapper genericClassMapper;
 
 	public final Map<String, JSONObjectMapping> classMappings = new TreeMap<String, JSONObjectMapping>();
 
@@ -74,6 +79,7 @@ public class JSONObjectMappings {
 		structureUnmarshaller = new JSONStructureUnmarshaller( this );
 		streamMarshaller = new JSONStreamMarshaller( this );
 		streamUnmarshaller = new JSONStreamUnmarshaller( this );
+		genericClassMapper = new GenericClassMapper();
 	}
 
 	public JSONTextMarshaller getTextMarshaller() {
@@ -261,6 +267,16 @@ public class JSONObjectMappings {
 		clazzAndExtendsData.nullValues = objectMapping.nullValues;
 		clazzAndExtendsData.prepClassAndExtends(this, clazz, clazzArguments, overrideIgnoreMapSet);
 		objectMapping.classDataList = clazzAndExtendsData.clazzDataList;
+
+		try {
+			ClassData classData = genericClassMapper.mapClass(clazz);
+			System.out.println(classData.toString());
+			//objectMapping.classDataList = classData.classDataArr;
+		}
+		catch (ClassMapperException e1) {
+			e1.printStackTrace();
+		}
+	
 		// debug
 		//System.out.println(JSONClassData.toString(classDataList));
 
