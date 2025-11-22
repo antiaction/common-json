@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.antiaction.common.json;
+package com.antiaction.common.json.representation;
 
 import org.junit.Assert;
 import org.junit.Test;

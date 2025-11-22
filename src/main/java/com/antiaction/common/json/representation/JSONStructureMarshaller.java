@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.Map;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONConverterAbstract;
 import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectFieldMapping;
@@ -132,7 +131,7 @@ public class JSONStructureMarshaller {
 			while ( bLoop ) {
 				switch ( state ) {
 				case S_START:
-					switch ( objectMapping.type ) {
+					switch ( objectMapping.typeId ) {
 					case JSONObjectMapping.OMT_OBJECT:
 						json_struct = new JSONObject();
 						state = S_OBJECT_BEGIN;
@@ -146,7 +145,7 @@ public class JSONStructureMarshaller {
 						state = S_ARRAY_BEGIN;
 						break;
 					default:
-						throw new JSONException( "Invalid object mapping type: " + objectMapping.type );
+						throw new JSONException( "Invalid object mapping type: " + objectMapping.typeId );
 					}
 					break;
 				case S_OBJECT_BEGIN:
@@ -203,7 +202,7 @@ public class JSONStructureMarshaller {
 					while ( bFieldLoop ) {
 						if ( fieldMappingIdx < fieldMappingsArr.length ) {
 							fieldMapping = fieldMappingsArr[ fieldMappingIdx++ ];
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								booleanVal = fieldMapping.field.getBoolean( object );
 								if ( fieldMapping.converterId == -1 ) {
@@ -546,7 +545,7 @@ public class JSONStructureMarshaller {
 								}
 								break;
 							default:
-								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 						}
 						else {
@@ -559,7 +558,7 @@ public class JSONStructureMarshaller {
 					json_struct.add( json_value );
 					state = S_ARRAY;
 				case S_ARRAY:
-					switch ( fieldMapping.arrayType ) {
+					switch ( fieldMapping.arrayTypeId ) {
 					case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 						arrayOf_boolean = (boolean[])array;
 						while ( arrayIdx < arrayLen ) {
@@ -903,7 +902,7 @@ public class JSONStructureMarshaller {
 						}
 						break;
 					default:
-						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 					}
 					break;
 				}

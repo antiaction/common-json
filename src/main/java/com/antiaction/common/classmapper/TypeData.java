@@ -4,12 +4,14 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.antiaction.common.json.ClassTypeModifiers;
+import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectMappingConstants;
 
 // TODO Possible check for a class implementing multiple different collection interfaces.
@@ -37,14 +39,22 @@ public class TypeData {
 
 	public int typeId;
 
-	public int arrayType;
+	public int arrayTypeId;
 
-	public int colType;
+	public Integer colTypeId;
 
 	public int primaryType;
 
+	/** Java Class. */
+	public Class<?> clazz;
+
+	/** Java Type. */
 	public Type type;
 
+	/** Internal runtime class name. */
+	public String className;
+
+	/** Reader friendly class name. */
 	public String typeName;
 
 	public int modifiers;
@@ -65,15 +75,11 @@ public class TypeData {
 
 	public int typeVarNameId;
 
+	public boolean bWildCardType;
+
 	public boolean bUnresolved;
 
 	public ClassData classData;
-
-	protected static TypeData[] tdArr = new TypeData[16];
-
-	protected static Type[][] typeArgumentsArrs = new Type[16][];
-
-	protected static int[] typeArgumentIdxs = new int[16];
 
 	public static synchronized int getTypeVarNameId(String typeVarName) {
 		Integer typeVarNameId = typeVarNameIdMap.get(typeVarName);
@@ -110,9 +116,10 @@ public class TypeData {
 
 	public TypeData copyToObj(TypeData typeData) {
 		typeData.typeId = typeId;
-		typeData.arrayType = arrayType;
-		typeData.colType = colType;
+		typeData.arrayTypeId = arrayTypeId;
+		typeData.colTypeId = colTypeId;
 		typeData.primaryType = primaryType;
+		typeData.clazz = clazz;
 		typeData.type = type;
 		typeData.typeName = typeName;
 		typeData.modifiers = modifiers;
@@ -129,6 +136,12 @@ public class TypeData {
 		return typeData;
 	}
 
+	protected static TypeData[] tdArr = new TypeData[16];
+
+	protected static Type[][] typeArgumentsArrs = new Type[16][];
+
+	protected static int[] typeArgumentIdxs = new int[16];
+
 	/**
 	 * Parse a <code>Type</code> structure and 
 	 * @param type
@@ -136,20 +149,25 @@ public class TypeData {
 	 * @param typeData
 	 * @throws ClassMapperException
 	 */
-	public static synchronized void mapType(Type type, String srcDesc, TypeData typeData) throws ClassMapperException {
+	public static synchronized TypeData mapType(Type type, String srcDesc, TypeData typeData) throws ClassMapperException {
+		if (typeData == null) {
+			typeData = new TypeData();
+		}
 		int modifiers;
 		int maskedModifiers;
 		int level;
 		TypeData currTypeData = typeData;
 		boolean bInterfaceInstance = false;
 		Integer typeId;
-		Integer arrayType;
-		Integer colType;
-		String typeName;
+		Integer arrayTypeId;
+		Integer colTypeId;
+		String className;			// Internal runtime class name.
+		String typeName;			// Reader friendly class name.
 		TypeVariable<?> typeVar;
 		String typeVarName;
 		//Integer typeVarNameId;
 		ParameterizedType pType;
+		WildcardType wcType;
 		Type[] typeArguments = null;
 		int typeArgumentIdx = 0;
 		int tdArrLvl = 0;
@@ -198,87 +216,124 @@ public class TypeData {
 					typeArgumentIdx = typeArgumentIdxs[tdArrLvl];
 				}
 			}
+			else if (type instanceof java.lang.reflect.WildcardType) {
+				wcType = (WildcardType) type;
+				currTypeData.bWildCardType = true;
+			}
 			else if (!(type instanceof java.lang.Class)) {
-				//System.out.println("type: " + type.getClass().getTypeName());
+				System.out.println("type: " + type.getClass().getTypeName());
 				//System.out.println("type: " + type.getTypeName());
 				//throw new JSONException("Field: '" + field.getName() + "' has an unsupported type '" + type.getTypeName() + "'.");
 				throw new ClassMapperException(srcDesc + " has an unsupported type '" + type.getTypeName() + "'.");
 			}
 			if (type instanceof java.lang.Class) {
+				className = ((Class<?>) type).getName();
 				typeName = type.getTypeName();
 				modifiers = ((Class<?>) type).getModifiers();
 				bInterfaceInstance = false;
 				level = 0;
-				typeId = JSONObjectMappingConstants.primitiveTypeMappings.get(typeName);
-				if (typeId != null) {
-					currTypeData.typeId = typeId;
-				}
-				else {
-					while (level < typeName.length() && typeName.charAt(level) == '[') {
+				typeId = JSONObjectMappingConstants.primitiveTypeMappings.get(className);
+				// Debug
+				//System.out.println(className + " - " + typeName);
+				if (typeId == null) {
+					while (level < className.length() && className.charAt(level) == '[') {
 						++level;
 					}
 					if (level > 0) {
-						if (level == 1) {
-							// Get the Array type.
-							type = ((Class<?>) type).getComponentType();
-						}
-						else {
+						if (level != 1) {
 							//throw new JSONException( "Unsupported multi-dimensional array type '" + fieldTypeName + "'." );
 							throw new ClassMapperException( "Unsupported multi-dimensional array type '" + typeName + "'." );
 						}
+						typeId = JSONObjectMappingConstants.arrayPrimitiveTypeMappings.get( className );
+						// Get the Array type.
+						type = ((Class<?>) type).getComponentType();
 						//arrayType = JSONObjectMappingConstants.arrayPrimitiveTypeMappings.get( fieldTypeName );
-						arrayType = JSONObjectMappingConstants.arrayPrimitiveTypeMappings.get( typeName );
-						if (arrayType != null) {
-							currTypeData.arrayType = arrayType;
-						}
 					}
-					/*
-					 * Interface, Class, ParameterizedType or TypeVariable.
-					 */
-					maskedModifiers = modifiers & ACC_INTERFACE_ANNOTATION;
-					if (maskedModifiers != 0) {
-						if (maskedModifiers != ClassModifier.ACC_INTERFACE) {
-							throw new ClassMapperException(String.format("Mapping (annotation) interfaces not supported. %s can not be mapped.", ((Class<?>) type).getTypeName()));
+					if (typeId == null) {
+						/*
+						 * Interface, Class, ParameterizedType or TypeVariable.
+						 */
+						maskedModifiers = modifiers & ACC_INTERFACE_ANNOTATION;
+						if (maskedModifiers != 0) {
+							if (maskedModifiers != ClassModifier.ACC_INTERFACE) {
+								throw new ClassMapperException(String.format("Mapping (annotation) interfaces not supported. %s can not be mapped.", ((Class<?>) type).getTypeName()));
+							}
+							//int colType = ClassTypeModifiers.getCollectionInterfaceType(fieldType);
+							colTypeId = ClassTypeModifiers.getCollectionInterfaceType((Class<?>) type);
+							if (colTypeId == ClassTypeModifiers.COLTYPE_OTHER) {
+								//colType = ClassTypeModifiers.getCollectionType(fieldType);
+								colTypeId = ClassTypeModifiers.getCollectionType((Class<?>) type);
+							}
+							bInterfaceInstance = true;
+								// Check the interface itself.
+								// TODO Check interface vs instance at some pointer later.
+								/*
+								if ( colType != ClassTypeModifiers.COLTYPE_OTHER ) {
+									if ( fieldTypeInstance == null ) {
+										throw new JSONException( "[" + clazz.getName() + "] Missing @JSONTypeInstance annotation on collection interface field of type: " + fieldTypeName );
+									}
+									int instanceColType = ClassTypeModifiers.getCollectionType( fieldTypeInstance );
+									if ( colType != instanceColType ) {
+										throw new JSONException( "Field interface type(" + ClassTypeModifiers.colTypeToString( colType ) + ") and instance type(" + ClassTypeModifiers.colTypeToString( instanceColType ) + ") are not compatible." );
+									}
+								}
+								*/
+								//System.out.println("(Interface): " + fieldType.getName());
 						}
-						//int colType = ClassTypeModifiers.getCollectionInterfaceType(fieldType);
-						colType = ClassTypeModifiers.getCollectionInterfaceType((Class<?>) type);
-						if (colType == ClassTypeModifiers.COLTYPE_OTHER) {
-							//colType = ClassTypeModifiers.getCollectionType(fieldType);
-							colType = ClassTypeModifiers.getCollectionType((Class<?>) type);
+						else {
+							maskedModifiers = modifiers & ACC_ENUM_MODULE;
+							if (maskedModifiers != 0) {
+								throw new ClassMapperException(String.format("Modifiers for class %s not supported by mapper. (%s)", ((Class<?>) type).getTypeName(), Modifier.toString(maskedModifiers)));
+							}
+							colTypeId = ClassTypeModifiers.getCollectionType((Class<?>) type);
+							// debug
+							//System.out.println("(Class): " + fieldType.getName());
 						}
-						bInterfaceInstance = true;
-							// Check the interface itself.
-							// TODO Check interface vs instance at some pointer later.
+						switch ( colTypeId ) {
+						case ClassTypeModifiers.COLTYPE_LIST:
+							typeId = JSONObjectMappingConstants.T_LIST;
+							currTypeData.bCollection = true;
+							currTypeData.colTypeId = colTypeId;
+							break;
+						case ClassTypeModifiers.COLTYPE_MAP:
+							typeId = JSONObjectMappingConstants.T_MAP;
+							currTypeData.bCollection = true;
+							currTypeData.colTypeId = colTypeId;
+							break;
+						case ClassTypeModifiers.COLTYPE_SET:
+							typeId = JSONObjectMappingConstants.T_SET;
+							currTypeData.bCollection = true;
+							currTypeData.colTypeId = colTypeId;
+							break;
+							//throw new JSONException( "Collection must have parametrized type(s). (" + fieldTypeName + ")" );
+						default:
+							typeId = JSONObjectMappingConstants.T_OBJECT;
+							// Cache
 							/*
-							if ( colType != ClassTypeModifiers.COLTYPE_OTHER ) {
-								if ( fieldTypeInstance == null ) {
-									throw new JSONException( "[" + clazz.getName() + "] Missing @JSONTypeInstance annotation on collection interface field of type: " + fieldTypeName );
-								}
-								int instanceColType = ClassTypeModifiers.getCollectionType( fieldTypeInstance );
-								if ( colType != instanceColType ) {
-									throw new JSONException( "Field interface type(" + ClassTypeModifiers.colTypeToString( colType ) + ") and instance type(" + ClassTypeModifiers.colTypeToString( instanceColType ) + ") are not compatible." );
-								}
+							fieldObjectMapping = om.classMappings.get( fieldTypeName );
+							if ( fieldObjectMapping == null ) {
+								// FIXME Arguments
+								fieldObjectMapping = om.mapClass( Class.forName( fieldTypeName, true, clazz.getClassLoader() ), JSONClassAndExtendsData.ZERO_CLAZZ_ARGUMENTS );
 							}
 							*/
-							//System.out.println("(Interface): " + fieldType.getName());
-					}
-					else {
-						maskedModifiers = modifiers & ACC_ENUM_MODULE;
-						if (maskedModifiers != 0) {
-							throw new ClassMapperException(String.format("Modifiers for class %s not supported by mapper. (%s)", ((Class<?>) type).getTypeName(), Modifier.toString(maskedModifiers)));
+							break;
 						}
-						colType = ClassTypeModifiers.getCollectionType((Class<?>) type);
-						// debug
-						//System.out.println("(Class): " + fieldType.getName());
+						/*
+						if (colTypeId != null && colTypeId > 0) {
+						}
+						*/
 					}
-					if (colType != null && colType > 0) {
-						currTypeData.bCollection = true;
-						currTypeData.colType = colType;
+					if (level == 1) {
+						arrayTypeId = typeId;
+						typeId = JSONObjectMappingConstants.T_ARRAY;
+						currTypeData.arrayTypeId = arrayTypeId;
 					}
 				}
-				//currTypeData.type = fieldType;
+				currTypeData.typeId = typeId;
+				currTypeData.clazz = (Class<?>) type;
 				currTypeData.type = type;
-				currTypeData.typeName = type.getTypeName();
+				currTypeData.className = className;
+				currTypeData.typeName = typeName;
 				currTypeData.modifiers = modifiers;
 				currTypeData.bInterfaceInstance = bInterfaceInstance;
 				currTypeData.level = level;
@@ -298,11 +353,8 @@ public class TypeData {
 				typeArgumentIdx = typeArgumentIdxs[tdArrLvl];
 			}
 		} while ((tdArrLvl > 0));
+		return typeData;
 	}
-
-	protected TypeData[][] parameterTypesStack = new TypeData[16][];
-
-	protected int[] parameterTypesIdxs = new int[16];
 
 	@Override
 	public String toString() {
@@ -311,7 +363,11 @@ public class TypeData {
 		return sb.toString();
 	}
 
-	public void typeToString(StringBuilder sb) {
+	protected TypeData[][] parameterTypesStack = new TypeData[16][];
+
+	protected int[] parameterTypesIdxs = new int[16];
+
+	public synchronized void typeToString(StringBuilder sb) {
 		TypeData typeData;
 		TypeData[] currParameterTypes;
 		int ptIdx;
@@ -354,12 +410,6 @@ public class TypeData {
 		// TODO Arrays..!
 	}
 
-	protected static TypeData[][] replaceOldParamTypesStack = new TypeData[16][];
-
-	protected static TypeData[][] replaceNewParamTypesStack = new TypeData[16][];
-
-	protected static int[] replaceParamTypesIdxs = new int[16];
-
 	public static synchronized TypeData replaceTypeVarNames(TypeData oldTopTypeData, int[] typeVarNameIds, TypeData[] typeVarParamTypes) {
 		TypeData[] oldParameterTypes;
 		TypeData[] newParameterTypes;
@@ -381,6 +431,12 @@ public class TypeData {
 			return oldTopTypeData;
 		}
 	}
+
+	protected static TypeData[][] replaceOldParamTypesStack = new TypeData[16][];
+
+	protected static TypeData[][] replaceNewParamTypesStack = new TypeData[16][];
+
+	protected static int[] replaceParamTypesIdxs = new int[16];
 
 	public static synchronized void replaceTypeVarNames(TypeData[] oldParameterTypes, TypeData[] newParameterTypes, int[] typeVarNameIds, TypeData[] typeVarParamTypes) {
 		int ptIdx;

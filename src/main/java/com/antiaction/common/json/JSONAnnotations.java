@@ -1,9 +1,11 @@
-package com.antiaction.common.classmapper;
+package com.antiaction.common.json;
 
 import java.lang.reflect.Field;
 
+import com.antiaction.common.classmapper.Annotations;
 import com.antiaction.common.json.annotation.JSON;
 import com.antiaction.common.json.annotation.JSONIgnore;
+import com.antiaction.common.json.annotation.JSONTypeInstance;
 
 public class JSONAnnotations extends Annotations {
 
@@ -35,6 +37,26 @@ public class JSONAnnotations extends Annotations {
 			bIgnore = true;
 		}
 		return bIgnore;
+	}
+
+	@Override
+	public Class<?> instanceClazz(Field field) throws Exception {
+		JSONTypeInstance jsonTypeInstance = field.getAnnotation( JSONTypeInstance.class );
+		Class<?> instanceClazz;
+		if ( jsonTypeInstance != null ) {
+			instanceClazz = jsonTypeInstance.value();
+			if ( instanceClazz == null ) {
+				throw new JSONException( "JSONTypeInstance annotation with null value is not allowed." );
+			}
+			int typeInstanceMask = ClassTypeModifiers.getClassTypeModifiersMask( instanceClazz );
+			if ( (typeInstanceMask & JSONObjectMappingConstants.FIELD_INVALID_TYPE_MODIFIERS_MASK) != 0 ) {
+				throw new JSONException( "Unsupported field instance type modifier(s) [" + ClassTypeModifiers.toString( typeInstanceMask ) + "] for class: " + instanceClazz.getName() );
+			}
+		}
+		else {
+			instanceClazz =  null;
+		}
+		return instanceClazz;
 	}
 
 }

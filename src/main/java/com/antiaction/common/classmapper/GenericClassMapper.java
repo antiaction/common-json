@@ -2,6 +2,8 @@ package com.antiaction.common.classmapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class GenericClassMapper extends SimpleClassMapper {
 
@@ -12,9 +14,9 @@ public class GenericClassMapper extends SimpleClassMapper {
 	}
 
 	@Override
-	public synchronized ClassData mapClass(Class<?> clazz, TypeData[] parameterTypes) throws ClassMapperException {
+	public synchronized ClassData mapClass(Class<?> clazz, TypeData[] parameterTypes, Map<String, Set<String>> overrideIgnoreMapSet) throws ClassMapperException {
 		//ClassData classData = scm.mapClass(clazz, clazzArgumentsIgnored);
-		ClassData topClassData = super.mapClass(clazz);
+		ClassData topClassData = super.mapClass(clazz, overrideIgnoreMapSet);
 		ClassData[] topClassDataArr;
 		//ClassData preClassData;
 		ClassData currClassData;
@@ -78,10 +80,12 @@ public class GenericClassMapper extends SimpleClassMapper {
 					if (typeVarNameIds.length > 0) {
 						for (int i=0; i<fields.length; ++i) {
 							fieldData = fields[i];
-							System.out.println(fields[i].toString());
+							// Debug
+							//System.out.println(fields[i].toString());
 							if (fields[i].bUnresolved) {
 								fieldData = FieldData.replaceTypeVarNames(fieldData, typeVarNameIds, parameterTypes);
-								System.out.println(fieldData);
+								// Debug
+								//System.out.println(fieldData);
 							}
 							fieldsList.add(fieldData);
 						}

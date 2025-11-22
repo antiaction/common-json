@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.representation.JSONArray;
 import com.antiaction.common.json.representation.JSONBoolean;
 import com.antiaction.common.json.representation.JSONNull;

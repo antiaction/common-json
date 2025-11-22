@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONEncoder;
 
 /**

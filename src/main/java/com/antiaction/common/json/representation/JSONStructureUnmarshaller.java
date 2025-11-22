@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONConverterAbstract;
 import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectFieldMapping;
@@ -140,7 +139,7 @@ public class JSONStructureUnmarshaller {
 				case S_START:
 					switch ( json_struct.type ) {
 					case JSONConstants.VT_OBJECT:
-						if ( objectMapping.type != JSONObjectMapping.OMT_OBJECT ) {
+						if ( objectMapping.typeId != JSONObjectMapping.OMT_OBJECT ) {
 							throw new JSONException( "Destination is not an object!" );
 						}
 						jsonObject = json_struct.getObject();
@@ -150,7 +149,7 @@ public class JSONStructureUnmarshaller {
 						state = S_OBJECT;
 						break;
 					case JSONConstants.VT_ARRAY:
-						if ( objectMapping.type != JSONObjectMapping.OMT_ARRAY ) {
+						if ( objectMapping.typeId != JSONObjectMapping.OMT_ARRAY ) {
 							throw new JSONException( "Destination is not an array!" );
 						}
 						jsonArrayVal = json_struct.getArray();
@@ -249,7 +248,7 @@ public class JSONStructureUnmarshaller {
 						fieldMapping = fieldMappingsArr[ fieldMappingsArrIdx++ ];
 						json_value = jsonObject.get( fieldMapping.jsonName );
 						if ( json_value != null ) {
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								if ( fieldMapping.converterId == -1 ) {
 									booleanVal = json_value.getBoolean();
@@ -448,7 +447,7 @@ public class JSONStructureUnmarshaller {
 								}
 								break;
 							default:
-								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 						}
 						else {
@@ -462,7 +461,7 @@ public class JSONStructureUnmarshaller {
 					}
 					break;
 				case S_ARRAY:
-					switch ( fieldMapping.arrayType ) {
+					switch ( fieldMapping.arrayTypeId ) {
 					case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 						jsonValues = jsonArrayVal.values;
 						arrayOf_boolean = new boolean[ jsonValues.size() ];
@@ -717,7 +716,7 @@ public class JSONStructureUnmarshaller {
 						state = S_ARRAY_OBJECT;
 						break;
 					default:
-						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 					}
 					break;
 				case S_ARRAY_OBJECT_VALUE:

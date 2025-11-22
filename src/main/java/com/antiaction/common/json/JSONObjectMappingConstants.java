@@ -70,11 +70,64 @@ public class JSONObjectMappingConstants {
 	public static final int T_MAP = 202;
 	public static final int T_SET = 203;
 
+	protected static Object[][] primitiveTypesArr = new Object[][] {
+		{boolean.class, T_PRIMITIVE_BOOLEAN},
+		{char.class, T_PRIMITIVE_CHAR},
+		{byte.class, T_PRIMITIVE_BYTE},
+		{short.class, T_PRIMITIVE_SHORT},
+		{int.class, T_PRIMITIVE_INTEGER},
+		{long.class, T_PRIMITIVE_LONG},
+		{float.class, T_PRIMITIVE_FLOAT},
+		{double.class, T_PRIMITIVE_DOUBLE},
+		{Boolean.class, T_BOOLEAN},
+		{Character.class, T_CHARACTER},
+		{Byte.class, T_BYTE},
+		{Short.class, T_SHORT},
+		{Integer.class, T_INTEGER},
+		{Long.class, T_LONG},
+		{Float.class, T_FLOAT},
+		{Double.class, T_DOUBLE},
+		{Date.class, T_DATE},
+		{Timestamp.class, T_TIMESTAMP},
+		{BigInteger.class, T_BIGINTEGER},
+		{BigDecimal.class, T_BIGDECIMAL},
+		{String.class, T_STRING},
+		{byte[].class, T_BYTEARRAY}
+	};
+
+	protected static Object[][] primitiveArrayTypesArr = new Object[][] {
+		{boolean[].class, T_PRIMITIVE_BOOLEAN},
+		//{char[].class, T_PRIMITIVE_CHAR},
+		//{byte[].class, T_PRIMITIVE_BYTE},
+		{short[].class, T_PRIMITIVE_SHORT},
+		{int[].class, T_PRIMITIVE_INTEGER},
+		{long[].class, T_PRIMITIVE_LONG},
+		{float[].class, T_PRIMITIVE_FLOAT},
+		{double[].class, T_PRIMITIVE_DOUBLE},
+		{Boolean[].class, T_BOOLEAN},
+		//{Character[].class, T_CHARACTER},
+		//{Byte[].class, T_BYTE},
+		{Integer[].class, T_INTEGER},
+		{Long[].class, T_LONG},
+		{Float[].class, T_FLOAT},
+		{Double[].class, T_DOUBLE},
+		{Date[].class, T_DATE},
+		{Timestamp[].class, T_TIMESTAMP},
+		{BigInteger[].class, T_BIGINTEGER},
+		{BigDecimal[].class, T_BIGDECIMAL},
+		{String[].class, T_STRING}
+	};
+
 	public static Map<String, Integer> primitiveTypeMappings = new TreeMap<String, Integer>();
 
 	public static Map<String, Integer> arrayPrimitiveTypeMappings = new TreeMap<String, Integer>();
 
 	static {
+		Class<?> clazz;
+		String typeName;
+		int typeId;
+
+		/*
 		primitiveTypeMappings.put( boolean.class.getName(), T_PRIMITIVE_BOOLEAN );
 		primitiveTypeMappings.put( char.class.getName(), T_PRIMITIVE_CHAR );
 		primitiveTypeMappings.put( byte.class.getName(), T_PRIMITIVE_BYTE );
@@ -97,10 +150,27 @@ public class JSONObjectMappingConstants {
 		primitiveTypeMappings.put( BigDecimal.class.getName(), T_BIGDECIMAL );
 		primitiveTypeMappings.put( String.class.getName(), T_STRING );
 		primitiveTypeMappings.put( byte[].class.getName(), T_BYTEARRAY );
+		*/
 
+		for (int i=0; i<primitiveTypesArr.length; ++i) {
+			clazz = (Class<?>)primitiveTypesArr[i][0];
+			typeName = clazz.getName();
+			typeId = (int)primitiveTypesArr[i][1];
+			primitiveTypeMappings.put(typeName, typeId);
+		}
+
+		for (int i=0; i<primitiveArrayTypesArr.length; ++i) {
+			clazz = (Class<?>)primitiveArrayTypesArr[i][0];
+			typeName = clazz.getName();
+			typeId = (int)primitiveArrayTypesArr[i][1];
+			arrayPrimitiveTypeMappings.put(typeName, typeId);
+		}
+
+		/*
 		arrayPrimitiveTypeMappings.put( boolean[].class.getName(), T_PRIMITIVE_BOOLEAN );
 		//arrayPrimitiveTypeMappings.put( char[].class.getName(), T_PRIMITIVE_CHAR );
 		//arrayPrimitiveTypeMappings.put( byte[].class.getName(), T_PRIMITIVE_BYTE );
+		arrayPrimitiveTypeMappings.put( short[].class.getName(), T_PRIMITIVE_SHORT );
 		arrayPrimitiveTypeMappings.put( int[].class.getName(), T_PRIMITIVE_INTEGER );
 		arrayPrimitiveTypeMappings.put( long[].class.getName(), T_PRIMITIVE_LONG );
 		arrayPrimitiveTypeMappings.put( float[].class.getName(), T_PRIMITIVE_FLOAT );
@@ -117,6 +187,7 @@ public class JSONObjectMappingConstants {
 		arrayPrimitiveTypeMappings.put( BigInteger[].class.getName(), T_BIGINTEGER );
 		arrayPrimitiveTypeMappings.put( BigDecimal[].class.getName(), T_BIGDECIMAL );
 		arrayPrimitiveTypeMappings.put( String[].class.getName(), T_STRING );
+		*/
 	}
 
 	public static String primitivTypesToString() {

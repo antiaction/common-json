@@ -20,7 +20,6 @@ package com.antiaction.common.json.representation;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONEncoder;
 
 /**

@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.antiaction.common.classmapper.ClassData;
+
 /**
  * A JSON object mapping description.
  *
@@ -39,14 +41,14 @@ public class JSONObjectMapping {
 	public static final int OMT_ARRAY = 2;
 
 	/** Mapping type, object or array. */
-	public int type;
+	public int typeId;
 
 	/*
 	 * Object.
 	 */
 
 	/** Class and parent classes used for this object mapping. */
-	public List<JSONClassData> classDataList;
+	public ClassData classData;
 
 	/** Field names to ignore when mapping objects. */
 	public Set<String> ignore;
@@ -74,7 +76,7 @@ public class JSONObjectMapping {
 	 */
 
 	/** JSON Java array type identifier. */
-	public int arrayType;
+	public int arrayTypeId;
 
 	/** Field class type name. */
 	public String className;
@@ -93,7 +95,7 @@ public class JSONObjectMapping {
 
 	public static JSONObjectMapping getObjectMapping() {
 		JSONObjectMapping om = new JSONObjectMapping();
-		om.type = OMT_OBJECT;
+		om.typeId = OMT_OBJECT;
 		om.ignore = new TreeSet<String>();
 		om.nullable = new TreeSet<String>();
 		om.nullValues = new TreeSet<String>();
@@ -104,7 +106,7 @@ public class JSONObjectMapping {
 
 	public static JSONObjectMapping getArrayMapping() {
 		JSONObjectMapping om = new JSONObjectMapping();
-		om.type = OMT_ARRAY;
+		om.typeId = OMT_ARRAY;
 		return om;
 	}
 
@@ -115,20 +117,20 @@ public class JSONObjectMapping {
 	}
 
 	public void toString(StringBuilder sb) {
-		switch ( type ) {
+		switch ( typeId ) {
 		case OMT_OBJECT:
 			sb.append( "  type: Object(" );
-			sb.append( type );
+			sb.append( typeId );
 			sb.append( ")\n" );
 			break;
 		case OMT_ARRAY:
 			sb.append( "  type: Array(" );
-			sb.append( type );
+			sb.append( typeId );
 			sb.append( ")\n" );
 			sb.append( "  arrayType: " );
-			sb.append( JSONObjectMappingConstants.typeString( arrayType ) );
+			sb.append( JSONObjectMappingConstants.typeString( arrayTypeId ) );
 			sb.append( "(" );
-			sb.append( arrayType );
+			sb.append( arrayTypeId );
 			sb.append( ")\n" );
 			break;
 		}
@@ -201,8 +203,10 @@ public class JSONObjectMapping {
 		}
 	}
 
+	/*
 	public void classDataStringAppend(StringBuilder sb) {
 		JSONClassData.toString(classDataList, sb);
 	}
+	*/
 
 }

@@ -69,7 +69,7 @@ public class TestJSONObjectExtendsMappings {
 			JSONObjectMappings json_objectmappings = new JSONObjectMappings();
 			//JSONObjectMapping objectMapping1 = json_objectmappings.register(Four.class);
 			JSONObjectMapping objectMapping2 = json_objectmappings.register(Test2_1.class);
-			System.out.println(JSONClassData.toString(objectMapping2.classDataList));
+			//System.out.println(JSONClassData.toString(objectMapping2.classDataList));
 			System.out.println(objectMapping2.toString());
 		}
 		catch (JSONException e) {

@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONEncoder;
 
 /**

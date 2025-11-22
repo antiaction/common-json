@@ -21,7 +21,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -29,6 +28,7 @@ import java.util.TreeMap;
 
 import com.antiaction.common.classmapper.ClassData;
 import com.antiaction.common.classmapper.ClassMapperException;
+import com.antiaction.common.classmapper.FieldData;
 import com.antiaction.common.classmapper.GenericClassMapper;
 import com.antiaction.common.json.annotation.JSONConverter;
 import com.antiaction.common.json.annotation.JSONName;
@@ -79,7 +79,10 @@ public class JSONObjectMappings {
 		structureUnmarshaller = new JSONStructureUnmarshaller( this );
 		streamMarshaller = new JSONStreamMarshaller( this );
 		streamUnmarshaller = new JSONStreamUnmarshaller( this );
+		// Bootstrap classmapper.
 		genericClassMapper = new GenericClassMapper();
+		genericClassMapper.annotationsFactory = new JSONAnnotationsFactory();
+		genericClassMapper.fieldDataFactory = new JSONObjectFieldMappingFactory();
 	}
 
 	public JSONTextMarshaller getTextMarshaller() {
@@ -124,7 +127,6 @@ public class JSONObjectMappings {
 	}
 	*/
 
-	// TODO , boolean bExtended
 	public JSONObjectMapping register(Class<?> clazz) throws JSONException {
 		/*
 		 * Check if we mapped this class definition already.
@@ -200,15 +202,15 @@ public class JSONObjectMappings {
 					throw new JSONException( "Unsupported array type '" + arrayTypeName + "'." );
 				}
 			}
-			objectMapping.arrayType = arrayType;
+			objectMapping.arrayTypeId = arrayType;
 			objectMapping.className = arrayTypeName;
 			objectMapping.clazz = fieldType;
 			objectMapping.objectMapping = fieldObjectMapping;
 			// TODO FieldMapping need to work for top level arrays.
 			objectMapping.fieldMapping = new JSONObjectFieldMapping();
 			// Try to support Collection field type. Caused regression error.
-			objectMapping.fieldMapping.type = JSONObjectMappingConstants.T_ARRAY;
-			objectMapping.fieldMapping.arrayType = arrayType;
+			objectMapping.fieldMapping.typeId = JSONObjectMappingConstants.T_ARRAY;
+			objectMapping.fieldMapping.arrayTypeId = arrayType;
 			objectMapping.fieldMapping.className = arrayTypeName;
 			objectMapping.fieldMapping.clazz = fieldType;
 		}
@@ -261,28 +263,36 @@ public class JSONObjectMappings {
 			throw new JSONException( clazz.getName() + " does not have a zero argument constructor!" );
 		}
 
+		/*
 		JSONClassAndExtendsData clazzAndExtendsData = new JSONClassAndExtendsData();
 		clazzAndExtendsData.ignore = objectMapping.ignore;
 		clazzAndExtendsData.nullable = objectMapping.nullable;
 		clazzAndExtendsData.nullValues = objectMapping.nullValues;
 		clazzAndExtendsData.prepClassAndExtends(this, clazz, clazzArguments, overrideIgnoreMapSet);
-		objectMapping.classDataList = clazzAndExtendsData.clazzDataList;
+		//objectMapping.classDataList = clazzAndExtendsData.clazzDataList;
+		*/
 
+		ClassData classData;
 		try {
-			ClassData classData = genericClassMapper.mapClass(clazz);
-			System.out.println(classData.toString());
-			//objectMapping.classDataList = classData.classDataArr;
+			classData = genericClassMapper.mapClass(clazz, overrideIgnoreMapSet);
+			objectMapping.ignore.addAll(classData.annotations.ignoreSet);
+			objectMapping.nullable.addAll(classData.annotations.nullableSet);
+			objectMapping.nullValues.addAll(classData.annotations.nullValuesSet);
+			objectMapping.classData = classData;
 		}
-		catch (ClassMapperException e1) {
-			e1.printStackTrace();
+		catch (ClassMapperException e) {
+			throw new JSONException(e);
 		}
 	
 		// debug
 		//System.out.println(JSONClassData.toString(classDataList));
 
 		//Field[] fields = clazz.getDeclaredFields();
-		List<JSONFieldData> fieldDataList = clazzAndExtendsData.fieldDataList;
-		JSONFieldData fieldData;
+		//List<JSONFieldData> fieldDataList = clazzAndExtendsData.fieldDataList;
+		//JSONFieldData fieldData;
+
+		FieldData[] fieldDataArr = classData.fieldsInherited;
+		FieldData fieldData;
 		Field field;
 
 		JSONNullable nullable;
@@ -293,14 +303,78 @@ public class JSONObjectMappings {
 		JSONName jsonName;
 
 		try {
-			for ( int i=0; i<fieldDataList.size(); ++i ) {
-				fieldData = fieldDataList.get( i );
-				field = fieldDataList.get( i ).field;
+			for ( int i=0; i<fieldDataArr.length; ++i ) {
+				fieldData = fieldDataArr[i];
+				field = fieldData.field;
+				if (fieldData.bInterfaceInstance) {
+					if ( fieldData.instanceClazz == null ) {
+						throw new JSONException( "[" + clazz.getName() + "] Missing @JSONTypeInstance annotation on collection interface field of type: " + fieldData.className );
+					}
+				}
+				if (fieldData.colTypeId != null) {
+					switch (fieldData.colTypeId) {
+					case ClassTypeModifiers.COLTYPE_LIST:
+					case ClassTypeModifiers.COLTYPE_SET:
+						if (fieldData.parameterTypes.length != 1) {
+							throw new JSONException( "Collection must have parametrized type(s). (" + fieldData.className + ")" );
+						}
+						if (fieldData.parameterTypes[0].bWildCardType) {
+							throw new JSONException( "Unsupported use of wildcard parameterized types." );
+						}
+						break;
+					case ClassTypeModifiers.COLTYPE_MAP:
+						if (fieldData.parameterTypes.length != 2) {
+							throw new JSONException( "Collection must have parametrized type(s). (" + fieldData.className + ")" );
+						}
+						if (fieldData.parameterTypes[0].bWildCardType || fieldData.parameterTypes[1].bWildCardType) {
+							throw new JSONException( "Unsupported use of wildcard parameterized types." );
+						}
+						break;
+					case ClassTypeModifiers.COLTYPE_OTHER:
+						throw new JSONException( "[" + clazz.getName() + "] Unsupported collection interface type: " + fieldData.className );
+					}
+				}
+				if (fieldData.instanceClazz == null ) {
+					fieldData.instanceClazz = fieldData.clazz;
+				}
 				// debug
 				//System.out.println( field.getName() );
-				json_fm = new JSONObjectFieldMapping(fieldData);
+				//json_fm = new JSONObjectFieldMapping(fieldData);
+				json_fm = (JSONObjectFieldMapping) fieldData;
+				json_fm.prepare();
 
-				objectMapping.fieldMapping = json_fm;
+
+				// FIXME Think of a better solution.
+				if (json_fm.objectMapping == null) {
+					if (json_fm.typeId == JSONObjectMappingConstants.T_OBJECT ||
+							(json_fm.typeId == JSONObjectMappingConstants.T_ARRAY && json_fm.arrayTypeId == JSONObjectMappingConstants.T_OBJECT)) {
+						json_fm.objectMapping = classMappings.get(json_fm.className);
+						if (json_fm.objectMapping == null) {
+							json_fm.objectMapping = mapClass(json_fm.clazz, clazzArguments);
+						}
+					}
+				}
+				if (json_fm.parameterTypes.length > 0) {
+					// debug
+					//System.out.println(json_fm.fieldName);
+					//System.out.println(json_fm.className);
+					//System.out.println(json_fm.instanceClazz.getName());
+					//System.out.println(json_fm.parameterTypes.length);
+					json_fm.parametrizedObjectTypes = new Integer[json_fm.parameterTypes.length];
+					json_fm.parametrizedObjectMappings = new JSONObjectMapping[json_fm.parameterTypes.length];
+					for (int ptIdx=0; ptIdx<json_fm.parameterTypes.length; ++ptIdx) {
+						json_fm.parametrizedObjectTypes[ptIdx] = json_fm.parameterTypes[ptIdx].typeId;
+						if (json_fm.parametrizedObjectTypes[ptIdx] == JSONObjectMappingConstants.T_OBJECT) {
+							json_fm.parametrizedObjectMappings[ptIdx] = mapClass(json_fm.parameterTypes[ptIdx].clazz, clazzArguments);
+						}
+					}
+				}
+
+				// debug
+				//System.out.println(fieldData.getClass().toString() + " - " + json_fm.getClass().toString());
+
+				// FIXME Why?
+				//objectMapping.fieldMapping = json_fm;
 
 				bNullable = objectMapping.nullable.contains( json_fm.fieldName );
 				if ( !bNullable ) {
@@ -316,7 +390,7 @@ public class JSONObjectMappings {
 					}
 				}
 				if ( bNullable ) {
-					if ( json_fm.type < JSONObjectMappingConstants.T_OBJECT ) {
+					if ( json_fm.typeId < JSONObjectMappingConstants.T_OBJECT ) {
 						throw new JSONException( "Primitive types can not be nullable." );
 					}
 					json_fm.nullable = true;
@@ -329,7 +403,7 @@ public class JSONObjectMappings {
 					}
 				}
 				if ( bNullValues ) {
-					if ( json_fm.type >= JSONObjectMappingConstants.T_ARRAY && json_fm.arrayType < JSONObjectMappingConstants.T_OBJECT ) {
+					if ( json_fm.typeId >= JSONObjectMappingConstants.T_ARRAY && json_fm.arrayTypeId < JSONObjectMappingConstants.T_OBJECT ) {
 						throw new JSONException( "Array of primitive type can not have null values." );
 					}
 					json_fm.nullValues = true;

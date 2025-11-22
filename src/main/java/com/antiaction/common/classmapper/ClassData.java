@@ -1,5 +1,6 @@
 package com.antiaction.common.classmapper;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -10,6 +11,11 @@ public class ClassData {
 
 	/** Class the actual data is gathered from. */
 	public Class<?> clazz;
+
+	public Constructor<?> constructor;
+
+	/** Class name (Alternative text format for Arrays and Objects). */
+	public String className;
 
 	/** Class level annotations. */
 	public Annotations annotations;
@@ -49,6 +55,9 @@ public class ClassData {
 
 	public FieldData[] fieldsInherited;
 
+	protected ClassData() {
+	}
+
 	public ClassData cloneObj() {
 		ClassData classData = new ClassData();
 		return copyToObj(classData);
@@ -56,6 +65,7 @@ public class ClassData {
 
 	public ClassData copyToObj(ClassData classData) {
 		classData.clazz = clazz;
+		classData.constructor = constructor;
 		classData.annotations = annotations;
 		classData.modifiers = modifiers;
 		classData.typeParameters = typeParameters;

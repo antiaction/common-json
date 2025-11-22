@@ -168,7 +168,7 @@ public class JSONStreamMarshaller {
 				//System.out.println( stateStr.get( state ) + " (" + state + ")" );
 				switch ( state ) {
 				case S_START:
-					switch ( objectMapping.type ) {
+					switch ( objectMapping.typeId ) {
 					case JSONObjectMapping.OMT_OBJECT:
 						state = S_OBJECT_BEGIN;
 						break;
@@ -405,7 +405,7 @@ public class JSONStreamMarshaller {
 							else {
 								encoder.write( ':' );
 							}
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								booleanVal = fieldMapping.field.getBoolean( object );
 								if ( fieldMapping.converterId != -1 ) {
@@ -904,7 +904,7 @@ public class JSONStreamMarshaller {
 								//throw new UnsupportedOperationException();
 								break;
 							default:
-								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported object type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported object type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 						}
 						else {
@@ -914,7 +914,7 @@ public class JSONStreamMarshaller {
 					}
 					break;
 				case S_ARRAY:
-					switch ( fieldMapping.arrayType ) {
+					switch ( fieldMapping.arrayTypeId ) {
 					case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 						arrayOf_boolean = (boolean[])array;
 						while ( arrayIdx < arrayLen ) {
@@ -1387,7 +1387,7 @@ public class JSONStreamMarshaller {
 						}
 						break;
 					default:
-						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+						throw new JSONException( "Field '" + fieldMapping.fieldName + "' has an unsupported array type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 					}
 					break;
 				case S_LIST:

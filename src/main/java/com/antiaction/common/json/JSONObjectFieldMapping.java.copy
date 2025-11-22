@@ -17,6 +17,8 @@
 
 package com.antiaction.common.json;
 
+import java.lang.reflect.Field;
+
 import com.antiaction.common.classmapper.FieldData;
 
 /**
@@ -25,25 +27,31 @@ import com.antiaction.common.classmapper.FieldData;
  * @author Nicholas
  * Created on 23/11/2012
  */
-public class JSONObjectFieldMapping extends FieldData {
+public class JSONObjectFieldMapping {
 
 	/** Reflection field. */
-	//public Field field;
+	public Field field;
 
 	/** Field name. */
-	//public String fieldName;
-
-	/** JSON Java type identifier. */
-	//public int typeId;
-
-	/** JSON Java array type identifier. */
-	//public int arrayTypeId;
-
-	/** Field class type name. */
-	//public String className;
+	public String fieldName;
 
 	/** JSON name. */
 	public String jsonName;
+
+	/** JSON Java type identifier. */
+	public int type;
+
+	/** JSON Java array type identifier. */
+	public int arrayType;
+
+	/** Field class type name. */
+	public String className;
+
+	/** Field class. */
+	public Class<?> clazz;
+
+	/** JSONInstanceType annotation class type parameter. */
+	public Class<?> instanceClazz;
 
 	/** Field object mapping, if object type. */
 	public JSONObjectMapping objectMapping;
@@ -69,33 +77,12 @@ public class JSONObjectFieldMapping extends FieldData {
 	public JSONObjectFieldMapping() {
 	}
 
-	@Override
-	public JSONObjectFieldMapping cloneObj() {
-		JSONObjectFieldMapping fieldData = new JSONObjectFieldMapping();
-		return copyToObj(fieldData);
-	}
-
-	public JSONObjectFieldMapping copyToObj(JSONObjectFieldMapping fieldData) {
-		fieldData.jsonName = jsonName;
-		fieldData.objectMapping = objectMapping;
-		fieldData.parametrizedObjectTypes = parametrizedObjectTypes;
-		fieldData.parametrizedObjectMappings = parametrizedObjectMappings;
-		fieldData.nullable = nullable;
-		fieldData.nullValues = nullValues;
-		fieldData.converterName = converterName;
-		fieldData.converterId = converterId;
-		super.copyToObj(fieldData);
-		prepare();
-		return fieldData;
-	}
-
-	/*
 	public JSONObjectFieldMapping(JSONFieldData fieldData) {
 		field = fieldData.field;
 		field.setAccessible( true );
 		fieldName = fieldData.fieldName;
-		typeId = fieldData.type;
-		arrayTypeId = fieldData.arrayType;
+		type = fieldData.type;
+		arrayType = fieldData.arrayType;
 		className = fieldData.fieldTypeName;
 		clazz = fieldData.fieldType;
 		instanceClazz = fieldData.fieldTypeInstance;
@@ -106,21 +93,17 @@ public class JSONObjectFieldMapping extends FieldData {
 			instanceClazz = clazz;
 		}
 	}
-	*/
 
-	public void prepare() {
-		field.setAccessible( true );
-	}
-
-	/*
 	public JSONObjectFieldMapping(FieldData fieldData) {
 		field = fieldData.field;
 		field.setAccessible( true );
 		fieldName = fieldData.fieldName;
-		typeId = fieldData.typeId;
-		arrayTypeId = fieldData.arrayTypeId;
+		type = fieldData.typeId;
+		arrayType = fieldData.arrayTypeId;
+		//className = fieldData.fieldTypeName;
 		className = fieldData.className;
-		clazz = (Class<?>) fieldData.type;
+		//clazz = fieldData.fieldType;
+		clazz = (Class<?> )fieldData.type;
 		// Epic Fail!
 		//instanceClazz = fieldData.fieldTypeInstance;
 		//objectMapping = fieldData.fieldObjectMapping;
@@ -130,7 +113,6 @@ public class JSONObjectFieldMapping extends FieldData {
 			instanceClazz = clazz;
 		}
 	}
-	*/
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -153,14 +135,14 @@ public class JSONObjectFieldMapping extends FieldData {
 		sb.append( converterId );
 		sb.append( "\n" );
 		sb.append( "    type: " );
-		sb.append( JSONObjectMappingConstants.typeString( typeId ) );
+		sb.append( JSONObjectMappingConstants.typeString( type ) );
 		sb.append( "(" );
-		sb.append( typeId );
+		sb.append( type );
 		sb.append( ")\n" );
 		sb.append( "    arrayType: " );
-		sb.append( JSONObjectMappingConstants.typeString( arrayTypeId ) );
+		sb.append( JSONObjectMappingConstants.typeString( arrayType ) );
 		sb.append( "(" );
-		sb.append( arrayTypeId );
+		sb.append( arrayType );
 		sb.append( ")\n" );
 		sb.append( "    className: " );
 		sb.append( className );

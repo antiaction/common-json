@@ -44,8 +44,8 @@ public class TestStructureMarshaller_Exceptions {
 		json_om = new JSONObjectMappings();
 		try {
 			JSONObjectMapping om = json_om.register( TestClass.class );
-			Assert.assertEquals( JSONObjectMapping.OMT_OBJECT, om.type );
-			om.type = 42;
+			Assert.assertEquals( JSONObjectMapping.OMT_OBJECT, om.typeId );
+			om.typeId = 42;
 		}
 		catch (JSONException e) {
 			e.printStackTrace();
@@ -72,8 +72,8 @@ public class TestStructureMarshaller_Exceptions {
 		try {
 			JSONObjectMapping om = json_om.register( TestClass.class );
 			JSONObjectFieldMapping fm = om.fieldMappingsArr[ 0 ];
-			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.type );
-			fm.type = 42;
+			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.typeId );
+			fm.typeId = 42;
 		}
 		catch (JSONException e) {
 			e.printStackTrace();
@@ -98,9 +98,9 @@ public class TestStructureMarshaller_Exceptions {
 		try {
 			JSONObjectMapping om = json_om.register( TestClass.class );
 			JSONObjectFieldMapping fm = om.fieldMappingsArr[ 1 ];
-			Assert.assertEquals( JSONObjectMappingConstants.T_ARRAY, fm.type );
-			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.arrayType );
-			fm.arrayType = 42;
+			Assert.assertEquals( JSONObjectMappingConstants.T_ARRAY, fm.typeId );
+			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.arrayTypeId );
+			fm.arrayTypeId = 42;
 		}
 		catch (JSONException e) {
 			e.printStackTrace();
@@ -280,8 +280,8 @@ public class TestStructureMarshaller_Exceptions {
 		try {
 			JSONObjectMapping om = json_om.register( TestClass.class );
 			JSONObjectFieldMapping fm = om.fieldMappingsArr[ 0 ];
-			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.type );
-			fm.type = 42;
+			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.typeId );
+			fm.typeId = 42;
 		}
 		catch (JSONException e) {
 			e.printStackTrace();
@@ -306,9 +306,9 @@ public class TestStructureMarshaller_Exceptions {
 		try {
 			JSONObjectMapping om = json_om.register( TestClass.class );
 			JSONObjectFieldMapping fm = om.fieldMappingsArr[ 1 ];
-			Assert.assertEquals( JSONObjectMappingConstants.T_ARRAY, fm.type );
-			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.arrayType );
-			fm.arrayType = 42;
+			Assert.assertEquals( JSONObjectMappingConstants.T_ARRAY, fm.typeId );
+			Assert.assertEquals( JSONObjectMappingConstants.T_PRIMITIVE_INTEGER, fm.arrayTypeId );
+			fm.arrayTypeId = 42;
 		}
 		catch (JSONException e) {
 			e.printStackTrace();

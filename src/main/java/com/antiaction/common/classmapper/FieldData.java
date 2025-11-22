@@ -6,16 +6,21 @@ import java.util.List;
 
 public class FieldData extends TypeData {
 
+	protected FieldDataFactoryAbstract<FieldData> fieldDataFactory;
+
 	public Field field;
 
 	/** Field name. */
 	public String fieldName;
 
-	public Class<?> fieldType = null;
+	/** InstanceType annotation class type parameter. */
+	public Class<?> instanceClazz;
 
-	public String fieldTypeName;
+	//public Class<?> fieldType = null;
 
-	public FieldData() {
+	//public String fieldTypeName;
+
+	protected FieldData() {
 	}
 
 	@Override
@@ -26,8 +31,9 @@ public class FieldData extends TypeData {
 
 	public FieldData copyToObj(FieldData fieldData) {
 		fieldData.fieldName = fieldName;
-		fieldData.fieldType = fieldType;
-		fieldData.fieldTypeName = fieldTypeName;
+		fieldData.instanceClazz = instanceClazz;
+		//fieldData.fieldType = fieldType;
+		//fieldData.fieldTypeName = fieldTypeName;
 		super.copyToObj(fieldData);
 		return fieldData;
 	}

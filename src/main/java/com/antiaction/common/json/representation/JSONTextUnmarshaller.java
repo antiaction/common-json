@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.nio.CharBuffer;
 import java.util.LinkedList;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONDecoder;
 import com.antiaction.common.json.JSONException;
 

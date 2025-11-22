@@ -6,9 +6,11 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -18,6 +20,8 @@ import java.util.TreeMap;
 public class SimpleClassMapper {
 
 	public static final TypeData[] ZERO_CLAZZ_ARGUMENTS = new TypeData[0];
+
+	public static final Map<String, Set<String>> EMPTY_OVERRIDE_IGNORE_MAPSET = new TreeMap<>();
 
 	public final Map<String, ClassData> classMappings = new TreeMap<String, ClassData>();
 
@@ -29,16 +33,27 @@ public class SimpleClassMapper {
 
 	public static final int ACC_IGNORED_FIELD_FLAGS = FieldFlags.ACC_STATIC | FieldFlags.ACC_FINAL | FieldFlags.ACC_VOLATILE | FieldFlags.ACC_TRANSIENT | FieldFlags.ACC_SYNTHETIC | FieldFlags.ACC_ENUM;
 
+	public AnnotationsFactoryAbstract<Annotations> annotationsFactory = new AnnotationsFactory();
+
+	public ClassDataFactoryAbstract<ClassData> classDataFactory = new ClassDataFactory();
+
+	public FieldDataFactoryAbstract<FieldData> fieldDataFactory = new FieldDataFactory();
+
+	public List<ClassData> discoveredClassDataList = new LinkedList<>();
+
 	public SimpleClassMapper() {
 	}
 
 	public synchronized ClassData mapClass(Class<?> clazz, TypeData[] parameterTypes) throws ClassMapperException {
-		return mapClass(clazz);
+		return mapClass(clazz, EMPTY_OVERRIDE_IGNORE_MAPSET);
 	}
 
-	public synchronized ClassData mapClass(Class<?> clazz) throws ClassMapperException {
-		AnnotationsFactory<JSONAnnotations> annoFact = new JSONAnnotationsFactory();
+	// FIXME parameterTypes need to be wired in.
+	public synchronized ClassData mapClass(Class<?> clazz, TypeData[] parameterTypes, Map<String, Set<String>> overrideIgnoreMapSet) throws ClassMapperException {
+		return mapClass(clazz, overrideIgnoreMapSet);
+	}
 
+	public synchronized ClassData mapClass(Class<?> clazz, Map<String, Set<String>> overrideIgnoreMapSet) throws ClassMapperException {
 		ClassData classData;
 		List<ClassData> classDataList;
 		List<ClassData> postProcessClassFields;
@@ -57,6 +72,7 @@ public class SimpleClassMapper {
 		boolean bLoop;
 		int modifiers;
 		int maskedModifiers;
+		Annotations annotations;
 		/*
 		 * Check if we mapped this class definition already.
 		 */
@@ -92,13 +108,28 @@ public class SimpleClassMapper {
 						}
 					}
 					classData = new ClassData();
+					// Postpone new classes found in fields to after all extended classes are registered.
 					postProcessClassFields.add(classData);
 					classData.clazz = clazz;
-					classData.annotations = annoFact.getInstance();
-					classData.annotations.processClass(clazz);
+					try {
+						classData.constructor = clazz.getDeclaredConstructor();
+					}
+					catch (NoSuchMethodException e) {
+						throw new ClassMapperException("Constructor not found!", e);
+					}
+					catch (SecurityException e) {
+						throw new ClassMapperException("Constructor is off limits!", e);
+					}
+					classData.className = clazz.getName();
+					annotations = annotationsFactory.getInstance();
+					classData.annotations = annotations;
+					annotations.processClass(clazz);
 					classData.modifiers = modifiers;
 					classDataList.add(classData);
 					classMappings.put(clazz.getName(), classData);
+					if (classDataList.size() > 1) {
+						discoveredClassDataList.add(classData);
+					}
 					// debug
 					//System.out.println("[" + clazzDataList.size() + "]: " + clazz.getClass().getTypeName());
 					//System.out.println("[" + clazzDataList.size() + "]: " + clazz.getTypeName());
@@ -182,21 +213,28 @@ public class SimpleClassMapper {
 					classData.declaredFields = declaredFields;
 					Field field;
 					boolean bIgnore;
-					Class<?> fieldType = null;
-					String fieldTypeName;
-					//½int classTypeMask;
+					//Class<?> fieldType = null;
+					//String fieldTypeName;
+					//int classTypeMask;
 
 					Type type;
 
 					List<FieldData> fields = new ArrayList<>(32);
 					FieldData fieldData;
+					Set<String> overrideFieldIgnoreSet;
 					for (int fIdx = 0; fIdx<declaredFields.length; ++fIdx) {
 						field = declaredFields[fIdx];
 						bIgnore = classData.annotations.ignore(clazz.getName(), field);
 						modifiers = field.getModifiers();
+						overrideFieldIgnoreSet = overrideIgnoreMapSet.get( clazz.getName() );
+						if ( bIgnore ) {
+							if ( overrideFieldIgnoreSet != null && overrideFieldIgnoreSet.contains( field.getName() ) ) {
+								bIgnore = false;
+							}
+						}
 						if (!bIgnore && (modifiers & ACC_IGNORED_FIELD_FLAGS) == 0) {
-							fieldType = field.getType();
-							fieldTypeName = fieldType.getName();
+							//fieldType = field.getType();
+							//fieldTypeName = fieldType.getName();
 							//classTypeMask = ClassTypeModifiers.getClassTypeModifiersMask(fieldType);
 							// treeset3 hashmap3
 							// debug.
@@ -205,14 +243,15 @@ public class SimpleClassMapper {
 								System.out.println("Breakpoint...");
 							}
 							*/
-							fieldData = new FieldData();
-							type = field.getGenericType();
-							TypeData.mapType(type, "Field: '" + field.getName() + "'", fieldData);
+							//fieldData = new FieldData();
+							fieldData = fieldDataFactory.getInstance();
 							fieldData.field = field;
 							fieldData.fieldName = field.getName();
-							fieldData.fieldType = fieldType;
-							fieldData.fieldTypeName = fieldTypeName;
-
+							type = field.getGenericType();
+							TypeData.mapType(type, "Field: '" + field.getName() + "'", fieldData);
+							//fieldData.fieldType = fieldType;
+							//fieldData.fieldTypeName = fieldTypeName;
+							fieldData.instanceClazz = annotations.instanceClazz(field);
 							/*
 							fieldData.type = type;
 							fieldData.arrayType = arrayType;
@@ -336,7 +375,7 @@ public class SimpleClassMapper {
 					tmpClassData = postProcessClassFields.get(i);
 					for (int j=0; j<tmpClassData.fieldsClass.length; ++j) {
 						fieldData = tmpClassData.fieldsClass[j];
-						mapTypeDataClasses(fieldData);
+						mapTypeDataClasses(fieldData, overrideIgnoreMapSet);
 						if (fieldData.bUnresolved) {
 							++tmpClassData.unresolvedFields;
 						}
@@ -355,15 +394,15 @@ public class SimpleClassMapper {
 
 	protected int[] parameterTypesIdxs = new int[16];
 
-	public synchronized void mapTypeDataClasses(TypeData typeData) throws ClassMapperException {
+	public synchronized void mapTypeDataClasses(TypeData typeData, Map<String, Set<String>> overrideIgnoreMapSet) throws ClassMapperException {
 		//TypeData typeData;
 		TypeData[] currParameterTypes;
 		int ptIdx;
 		int ptStackLvl;
 		if (!typeData.bTypeVariable && !typeData.bInterfaceInstance && !typeData.bCollection) {
-			if (typeData.typeId == 0  && typeData.arrayType == 0 && typeData.colType == 0) {
+			if (typeData.typeId == 0  && typeData.arrayTypeId == 0 && typeData.colTypeId == 0) {
 				if (typeData.classData == null) {
-					typeData.classData = mapClass((Class<?>) typeData.type);
+					typeData.classData = mapClass((Class<?>) typeData.type, overrideIgnoreMapSet);
 				}
 			}
 		}
@@ -376,10 +415,10 @@ public class SimpleClassMapper {
 			do {
 				if (ptIdx < currParameterTypes.length) {
 					typeData = currParameterTypes[ptIdx++];
-					if (!typeData.bTypeVariable && !typeData.bInterfaceInstance && !typeData.bCollection) {
-						if (typeData.typeId == 0  && typeData.arrayType == 0 && typeData.colType == 0) {
+					if (!typeData.bTypeVariable && !typeData.bInterfaceInstance && !typeData.bCollection && !typeData.bWildCardType) {
+						if (typeData.typeId == 0  && typeData.arrayTypeId == 0 && typeData.colTypeId == 0) {
 							if (typeData.classData == null) {
-								typeData.classData = mapClass((Class<?>) typeData.type);
+								typeData.classData = mapClass((Class<?>) typeData.type, overrideIgnoreMapSet);
 							}
 						}
 					}

@@ -1,7 +1,10 @@
 package com.antiaction.common.classmapper;
 
-public abstract class AnnotationsFactory<T extends Annotations> {
+public class AnnotationsFactory extends AnnotationsFactoryAbstract<Annotations> {
 
-	public abstract T getInstance();
+	@Override
+	public Annotations getInstance() {
+		return new Annotations();
+	}
 
 }

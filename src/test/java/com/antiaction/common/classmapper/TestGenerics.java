@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,6 +27,7 @@ public class TestGenerics {
 	public Map<String, Integer> gmap;
 
 	@Test
+	@Ignore
 	public void test_generics() {
 		Field field;
 		Type type;

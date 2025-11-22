@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.antiaction.common.json.JSONConstants;
 import com.antiaction.common.json.JSONDecoder;
 import com.antiaction.common.json.JSONDecoderCharset;
 import com.antiaction.common.json.JSONEncoder;

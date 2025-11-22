@@ -19,4 +19,8 @@ public class Annotations {
 		return false;
 	}
 
+	public Class<?> instanceClazz(Field field) throws Exception {
+		return null;
+	}
+
 }

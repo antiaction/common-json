@@ -227,6 +227,7 @@ public class JSONStreamUnmarshaller {
 							x = 1;
 							break;
 						case '{':
+							// TODO v0.8.0
 							rootObj = clazz.newInstance();
 							curObj = rootObj;
 							fieldMappingsMap = objectMapping.fieldMappingsMap;
@@ -258,7 +259,7 @@ public class JSONStreamUnmarshaller {
 						stack.add( stackEntry );
 
 						// To support collection of objects. "[{..."
-						switch (fieldMapping.type) {
+						switch (fieldMapping.typeId) {
 						case JSONObjectMappingConstants.T_OBJECT:
 							curObj = fieldMapping.clazz.newInstance();
 							objectMapping = classMappings.get( fieldMapping.clazz.getName() );
@@ -275,7 +276,7 @@ public class JSONStreamUnmarshaller {
 							fieldMappingStep = 0;
 							break;
 						case JSONObjectMappingConstants.T_SET:
-							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 						case JSONObjectMappingConstants.T_MAP:
 							if ( fieldMappingStep == 0 ) {
 								curObj = fieldMapping.instanceClazz.newInstance();
@@ -289,7 +290,7 @@ public class JSONStreamUnmarshaller {
 							}
 							break;
 						default:
-							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 						}
 						if ( objectMapping != null ) {
 							fieldMappingsMap = objectMapping.fieldMappingsMap;
@@ -334,7 +335,7 @@ public class JSONStreamUnmarshaller {
 						stackEntry.curArr = curArr;
 						stack.add( stackEntry );
 
-						switch (fieldMapping.type) {
+						switch (fieldMapping.typeId) {
 						case JSONObjectMappingConstants.T_ARRAY:
 							curArr = new ArrayList();
 							//curArrType = fieldMapping.arrayType;
@@ -349,9 +350,10 @@ public class JSONStreamUnmarshaller {
 						case JSONObjectMappingConstants.T_OBJECT:
 						case JSONObjectMappingConstants.T_MAP:
 						default:
-							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+							throw new UnsupportedOperationException( "Unexpected type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 						}
-						objectMapping = classMappings.get( fieldMapping.clazz.getName() );
+						//objectMapping = classMappings.get( fieldMapping.clazz.getName() );
+						objectMapping = fieldMapping.objectMapping;
 						fieldMappingStep = 0;
 						break;
 					case S_ARRAY_END:
@@ -450,7 +452,7 @@ public class JSONStreamUnmarshaller {
 							}
 							break;
 						case VT_BOOLEAN:
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								if ( fieldMapping.converterId != -1 ) {
 									// TODO
@@ -474,11 +476,11 @@ public class JSONStreamUnmarshaller {
 								fieldMapping.field.set( curObj, booleanVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 							break;
 						case VT_STRING:
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_STRING:
 								if ( fieldMapping.converterId != -1 ) {
 									// TODO
@@ -526,11 +528,11 @@ public class JSONStreamUnmarshaller {
 								}
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) + " at (" + y + ":" + x + ")!" );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) + " at (" + y + ":" + x + ")!" );
 							}
 							break;
 						case VT_OBJECT:
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_OBJECT:
 								if ( object != null ) {
 									// TODO
@@ -560,11 +562,11 @@ public class JSONStreamUnmarshaller {
 								}
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 							break;
 						case VT_NUMBER:
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								if ( "1".equals( stringVal ) ) {
 									booleanVal = true;
@@ -868,16 +870,16 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								fieldMapping.field.set( curObj, bigDecimalVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 							break;
 						case VT_ARRAY:
-							switch ( fieldMapping.type ) {
+							switch ( fieldMapping.typeId ) {
 							case JSONObjectMappingConstants.T_ARRAY:
 								// debug
 								//System.out.println( fieldMapping.arrayType );
 								int idx;
-								switch ( fieldMapping.arrayType ) {
+								switch ( fieldMapping.arrayTypeId ) {
 								case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 									arrayOf_boolean = new boolean[ array.size() ];
 									Iterator<Boolean> booleanIter = array.iterator();
@@ -936,7 +938,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								// TODO
 								throw new UnsupportedOperationException();
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.type ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.typeId ) );
 							}
 							break;
 						default:
@@ -1087,7 +1089,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 							curArr.add( null );
 							break;
 						case VT_BOOLEAN:
-							switch ( fieldMapping.arrayType ) {
+							switch ( fieldMapping.arrayTypeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								if ( fieldMapping.converterId != -1 ) {
 									// TODO
@@ -1111,11 +1113,11 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( booleanVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_STRING:
-							switch ( fieldMapping.arrayType ) {
+							switch ( fieldMapping.arrayTypeId ) {
 							case JSONObjectMappingConstants.T_STRING:
 								if ( fieldMapping.converterId != -1 ) {
 									// TODO
@@ -1142,11 +1144,11 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( byteArray );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_OBJECT:
-							switch ( fieldMapping.arrayType ) {
+							switch ( fieldMapping.arrayTypeId ) {
 							case JSONObjectMappingConstants.T_OBJECT:
 								if ( object != null ) {
 									// TODO
@@ -1158,11 +1160,11 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( object );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_NUMBER:
-							switch ( fieldMapping.arrayType ) {
+							switch ( fieldMapping.arrayTypeId ) {
 							case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 								if ( "1".equals( stringVal ) ) {
 									booleanVal = true;
@@ -1370,7 +1372,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( bigDecimalVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						default:
@@ -1522,7 +1524,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( booleanVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_STRING:
@@ -1553,7 +1555,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( byteArray );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_OBJECT:
@@ -1569,7 +1571,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( object );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						case VT_NUMBER:
@@ -1781,7 +1783,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 								curArr.add( bigDecimalVal );
 								break;
 							default:
-								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayType ) );
+								throw new JSONException( "Wrong type: " + JSONObjectMappingConstants.typeString( fieldMapping.arrayTypeId ) );
 							}
 							break;
 						default:
@@ -2264,7 +2266,7 @@ s								if ( dateVal == null && !fieldMapping.nullable ) {
 		}
 		if ( bArrayToRootObj ) {
 			int idx;
-			switch ( fieldMapping.arrayType ) {
+			switch ( fieldMapping.arrayTypeId ) {
 			case JSONObjectMappingConstants.T_PRIMITIVE_BOOLEAN:
 				arrayOf_boolean = new boolean[ array.size() ];
 				Iterator<Boolean> booleanIter = array.iterator();
