@@ -1,7 +1,10 @@
-package com.antiaction.common.json;
+package com.antiaction.common.json.deprecated;
 
 import java.lang.reflect.Field;
 
+import com.antiaction.common.json.JSONObjectMapping;
+
+@Deprecated
 public class JSONFieldData {
 
 	public Field field;

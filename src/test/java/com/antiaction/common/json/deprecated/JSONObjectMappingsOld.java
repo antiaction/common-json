@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.antiaction.common.deprecated;
+package com.antiaction.common.json.deprecated;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -31,9 +31,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.antiaction.common.json.ClassTypeModifiers;
-import com.antiaction.common.json.JSONClassAndExtendsData;
-import com.antiaction.common.json.JSONClassData;
+import com.antiaction.common.classmapper.ClassTypeModifiers;
 import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectFieldMapping;
 import com.antiaction.common.json.JSONObjectMapping;
@@ -57,6 +55,7 @@ import com.antiaction.common.json.representation.JSONTextUnmarshaller;
  * @author Nicholas
  * Created on 13/11/2012
  */
+@Deprecated
 public class JSONObjectMappingsOld {
 
 	protected final Class<?>[] zeroArgsParameterTypes = new Class[ 0 ];

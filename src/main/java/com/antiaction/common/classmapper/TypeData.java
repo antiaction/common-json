@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import com.antiaction.common.json.ClassTypeModifiers;
-import com.antiaction.common.json.JSONException;
 import com.antiaction.common.json.JSONObjectMappingConstants;
 
 // TODO Possible check for a class implementing multiple different collection interfaces.

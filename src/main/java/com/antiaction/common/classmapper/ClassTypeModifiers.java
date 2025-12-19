@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.antiaction.common.json;
+package com.antiaction.common.classmapper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

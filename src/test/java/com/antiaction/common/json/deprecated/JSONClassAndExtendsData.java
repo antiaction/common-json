@@ -1,4 +1,4 @@
-package com.antiaction.common.json;
+package com.antiaction.common.json.deprecated;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -11,11 +11,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.antiaction.common.classmapper.ClassTypeModifiers;
+import com.antiaction.common.json.JSONException;
+import com.antiaction.common.json.JSONObjectMapping;
+import com.antiaction.common.json.JSONObjectMappingConstants;
+import com.antiaction.common.json.JSONObjectMappings;
 import com.antiaction.common.json.annotation.JSON;
 import com.antiaction.common.json.annotation.JSONIgnore;
 import com.antiaction.common.json.annotation.JSONParamTypeInstance;
 import com.antiaction.common.json.annotation.JSONTypeInstance;
 
+@Deprecated
 public class JSONClassAndExtendsData {
 
 	public static final Class<?>[] ZERO_CLAZZ_ARGUMENTS = new Class<?>[0];

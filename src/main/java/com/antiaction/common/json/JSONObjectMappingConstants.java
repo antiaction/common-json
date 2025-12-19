@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.antiaction.common.classmapper.ClassTypeModifiers;
+
 /**
  * TODO javadoc
  * @author Nicholas

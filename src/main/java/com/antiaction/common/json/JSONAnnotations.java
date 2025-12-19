@@ -3,6 +3,7 @@ package com.antiaction.common.json;
 import java.lang.reflect.Field;
 
 import com.antiaction.common.classmapper.Annotations;
+import com.antiaction.common.classmapper.ClassTypeModifiers;
 import com.antiaction.common.json.annotation.JSON;
 import com.antiaction.common.json.annotation.JSONIgnore;
 import com.antiaction.common.json.annotation.JSONTypeInstance;

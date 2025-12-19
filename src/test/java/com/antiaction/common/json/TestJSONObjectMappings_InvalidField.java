@@ -22,10 +22,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.antiaction.common.json.TestClassTypeModifiers.TestAbstractMemberClass;
-import com.antiaction.common.json.TestClassTypeModifiers.TestEnum;
-import com.antiaction.common.json.TestClassTypeModifiers.TestInterface;
-import com.antiaction.common.json.TestClassTypeModifiers.TestMemberClass;
+import com.antiaction.common.classmapper.TestClassTypeModifiers;
+import com.antiaction.common.classmapper.TestClassTypeModifiers.TestAbstractMemberClass;
+import com.antiaction.common.classmapper.TestClassTypeModifiers.TestEnum;
+import com.antiaction.common.classmapper.TestClassTypeModifiers.TestInterface;
+import com.antiaction.common.classmapper.TestClassTypeModifiers.TestMemberClass;
 
 /**
  * TODO javadoc

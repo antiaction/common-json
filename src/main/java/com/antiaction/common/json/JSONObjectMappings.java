@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import com.antiaction.common.classmapper.ClassData;
 import com.antiaction.common.classmapper.ClassMapperException;
+import com.antiaction.common.classmapper.ClassTypeModifiers;
 import com.antiaction.common.classmapper.FieldData;
 import com.antiaction.common.classmapper.GenericClassMapper;
 import com.antiaction.common.json.annotation.JSONConverter;
@@ -46,7 +47,7 @@ import com.antiaction.common.json.representation.JSONTextUnmarshaller;
  */
 public class JSONObjectMappings {
 
-	protected final Class<?>[] zeroArgsParameterTypes = new Class[ 0 ];
+	public static final Class<?>[] ZEROARGS_PARAMETERTYPES = new Class[0];
 
 	public GenericClassMapper genericClassMapper;
 
@@ -145,7 +146,7 @@ public class JSONObjectMappings {
 			 */
 			classTypeMask &= JSONObjectMappingConstants.CLASS_VALID_TYPE_MODIFIERS_MASK;
 			if ( (classTypeMask == JSONObjectMappingConstants.VALID_CLASS) || (classTypeMask == JSONObjectMappingConstants.VALID_MEMBER_CLASS) ) {
-				objectMapping = mapClass( clazz, JSONClassAndExtendsData.ZERO_CLAZZ_ARGUMENTS );
+				objectMapping = mapClass( clazz, ZEROARGS_PARAMETERTYPES );
 			}
 			/*
 			else if (classTypeMask == JSONObjectMappingConstants.ABSTRACT_CLASS) {
@@ -167,7 +168,7 @@ public class JSONObjectMappings {
 		return objectMapping;
 	}
 
-	protected JSONObjectMapping mapArray(Class<?> clazz) throws JSONException {
+	public JSONObjectMapping mapArray(Class<?> clazz) throws JSONException {
 		int level;
 		Class<?> fieldType = null;
 		JSONObjectMapping fieldObjectMapping = null;
@@ -195,7 +196,7 @@ public class JSONObjectMappings {
 					// Cache
 					fieldObjectMapping = classMappings.get( arrayTypeName );
 					if ( fieldObjectMapping == null ) {
-						fieldObjectMapping = mapClass( fieldType, JSONClassAndExtendsData.ZERO_CLAZZ_ARGUMENTS );
+						fieldObjectMapping = mapClass( fieldType, ZEROARGS_PARAMETERTYPES );
 					}
 				}
 				else {
@@ -220,7 +221,7 @@ public class JSONObjectMappings {
 		return objectMapping;
 	}
 
-	protected JSONObjectMapping mapClass(Class<?> clazz, Class<?>[] clazzArguments) throws JSONException {
+	public JSONObjectMapping mapClass(Class<?> clazz, Class<?>[] clazzArguments) throws JSONException {
 		JSONObjectFieldMapping json_fm;
 
 		/*
@@ -255,7 +256,7 @@ public class JSONObjectMappings {
 
 		Constructor<?> constructor = null;
 		try {
-			constructor = clazz.getConstructor( zeroArgsParameterTypes );
+			constructor = clazz.getConstructor( ZEROARGS_PARAMETERTYPES );
 		}
 		catch (NoSuchMethodException e) {
 		}

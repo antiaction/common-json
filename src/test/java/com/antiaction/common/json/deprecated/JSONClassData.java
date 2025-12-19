@@ -1,4 +1,4 @@
-package com.antiaction.common.json;
+package com.antiaction.common.json.deprecated;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@Deprecated
 public class JSONClassData {
 
 	/** Class the actual data is gathered from. */

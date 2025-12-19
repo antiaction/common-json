@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
-package com.antiaction.common.json;
+package com.antiaction.common.classmapper;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import com.antiaction.common.classmapper.ClassTypeModifiers;
+import com.antiaction.common.json.JSONException;
+import com.antiaction.common.json.JSONObjectMappings;
 import com.antiaction.common.json.annotation.JSON;
 
 /**
